@@ -43,6 +43,7 @@ int cameraZoom = 0;
 // Model Variables
 Model_3DS fence1;
 Model_3DS fence2;
+Model_3DS cactus;
 
 // Textures
 GLTexture tex_ground;
@@ -312,6 +313,8 @@ void LoadAssets()
 	// Loading Model files
 	fence1.Load("models/fence/fence_1.3DS");
 	fence2.Load("models/fence/fence_2.3ds");
+
+	cactus.Load("models/cactus/Saguaro.3ds");
 
 	// Loading texture files
 	tex_ground.Load("Textures/ground.bmp");
