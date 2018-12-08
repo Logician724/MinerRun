@@ -410,6 +410,13 @@ void myDisplay(void)
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, lightIntensity);
 
+	glPushMatrix();
+	{
+		glTranslatef(0, 2, 250);
+		glRotatef(180, 0, 1, 0);
+		drawCharacter();
+	}
+	glPopMatrix();
 
 	glPushMatrix();
 	glTranslatef(0,0,sceneMotion);
@@ -500,7 +507,7 @@ void sceneAnim() {
 			swing = true;
 		}
 		else {
-			rotationOfArms++;
+			rotationOfArms+= 25;
 		}
 	}
 	else {
@@ -508,7 +515,7 @@ void sceneAnim() {
 			swing = false;
 		}
 		else {
-			rotationOfArms--;
+			rotationOfArms-= 25;
 		}
 	}
 
