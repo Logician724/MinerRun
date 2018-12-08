@@ -554,10 +554,10 @@ void keysEvents(unsigned char key, int x, int y) {
 	case 'd': camera.moveX(-CAMERA_MOVEMENT_SPEED); break;
 	case 'q': camera.moveZ(CAMERA_MOVEMENT_SPEED); break;
 	case 'e': camera.moveZ(-CAMERA_MOVEMENT_SPEED); break;
-	case 'l': camera.rotateX(CAMERA_ROTATION_SPEED); break;
-	case 'j': camera.rotateX(-CAMERA_ROTATION_SPEED); break;
-	case 'i': camera.rotateY(CAMERA_ROTATION_SPEED); break;
-	case 'k': camera.rotateY(-CAMERA_ROTATION_SPEED); break;
+	case 'i': camera.rotateX(CAMERA_ROTATION_SPEED); break;
+	case 'k': camera.rotateX(-CAMERA_ROTATION_SPEED); break;
+	case 'j': camera.rotateY(CAMERA_ROTATION_SPEED); break;
+	case 'l': camera.rotateY(-CAMERA_ROTATION_SPEED); break;
 	case GLUT_KEY_ESCAPE: exit(EXIT_SUCCESS); break;
 	}
 
