@@ -41,8 +41,8 @@ Vector Up(0, 1, 0);
 int cameraZoom = 0;
 
 // Model Variables
-Model_3DS fence1;
-Model_3DS fence2;
+Model_3DS metalFence;
+Model_3DS woodenFence;
 Model_3DS cactus;
 
 // Textures
@@ -188,7 +188,7 @@ void myDisplay(void)
 	// Draw house Model
 	glPushMatrix();
 	glRotatef(90.f, 1, 0, 0);
-	fence2.Draw();
+	woodenFence.Draw();
 	glPopMatrix();
 
 
@@ -311,10 +311,10 @@ void myReshape(int w, int h)
 void LoadAssets()
 {
 	// Loading Model files
-	fence1.Load("models/fence/fence_1.3DS");
-	fence2.Load("models/fence/fence_2.3ds");
+	metalFence.Load("models/metal_fence/fance.3DS");
+	woodenFence.Load("models/wooden_fence/13076_Gothic_Wood_Fence_Panel_v2_l3.3ds");
+	cactus.Load("models/cactus/10436_Cactus_v1_max2010_it2.3ds");
 
-	cactus.Load("models/cactus/Saguaro.3ds");
 
 	// Loading texture files
 	tex_ground.Load("Textures/ground.bmp");
