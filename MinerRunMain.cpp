@@ -47,6 +47,7 @@ Model_3DS cactus;
 Model_3DS goldChest;
 Model_3DS goldBag;
 Model_3DS trafficCone;
+Model_3DS goldArtifact;
 // Textures
 GLTexture tex_ground;
 
@@ -192,7 +193,7 @@ void myDisplay(void)
 	//glRotatef(90.f, 1, 0, 0);
 	//glRotated(180.0, 0, 1, 0);
 	//glScaled(2, 2, 2);
-	trafficCone.Draw();
+	goldArtifact.Draw();
 	glPopMatrix();
 
 
@@ -315,12 +316,13 @@ void myReshape(int w, int h)
 void LoadAssets()
 {
 	// Loading Model files
-	metalFence.Load("models/metal_fence/fance.3DS");
+	metalFence.Load("models/metal_fence/fance.3ds");
 	woodenFence.Load("models/wooden_fence/13076_Gothic_Wood_Fence_Panel_v2_l3.3ds");
 	cactus.Load("models/cactus/10436_Cactus_v1_max2010_it2.3ds");
 	goldChest.Load("models/gold_chest/ChestCartoon.3ds");
 	goldBag.Load("models/gold_bag/13450_Bag_of_Gold_v1_L3.3ds");
 	trafficCone.Load("models/traffic_cone/cone1_obj.3ds");
+	goldArtifact.Load("models/gold_artifact/13455_Gold_Doubloon_v1_l1.3ds");
 
 	// Loading texture files
 	tex_ground.Load("Textures/ground.bmp");
