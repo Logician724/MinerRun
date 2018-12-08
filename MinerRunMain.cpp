@@ -18,7 +18,7 @@
 int WIDTH = 1280;
 int HEIGHT = 720;
 
-bool isDesert = false;
+bool isDesert = true;
 
 // Camera
 class Vector3f {
@@ -116,6 +116,7 @@ GLdouble zFar = 700;
 
 int cameraZoom = 0;
 int sceneMotion = 0;
+float characterX = 0.0;
 
 GLuint tex;
 char title[] = "Miner Run";
@@ -286,13 +287,13 @@ void drawRails() {
 	if (isDesert) {
 		for (int zLocation = camera.eye.z; zLocation > -300; zLocation -= 30) {
 			glPushMatrix();
-			glTranslatef(-8, 0, zLocation);
+			glTranslatef(-8.1, 0, zLocation);
 			glScalef(0.5, 0.5, 3.0);
 			glRotatef(90.f, 1, 0, 0);
 			roadBarrier.Draw();
 			glPopMatrix();
 			glPushMatrix();
-			glTranslatef(8, 0, zLocation);
+			glTranslatef(8.3, 0, zLocation);
 			glScalef(0.5, 0.5, 3.0);
 			glRotatef(90.f, 1, 0, 0);
 			roadBarrier.Draw();
@@ -325,7 +326,7 @@ void drawInteractables() {
 	for (int i = 0; i < interactables.size(); i++) {
 		Interactable currentInteractable = interactables[i];
 		Vector3f currentOffset = currentInteractable.offset;
-		std::cout << currentOffset.x << " : " << currentOffset.y << " : " << currentOffset.z << "\n";
+		//std::cout << currentOffset.x << " : " << currentOffset.y << " : " << currentOffset.z << "\n";
 		// draw if within camera range
 		if (sceneMotion + currentOffset.z <= camera.eye.z + 20) {
 			glPushMatrix();
@@ -483,7 +484,7 @@ void myDisplay(void)
 
 	glPushMatrix();
 	{
-		glTranslatef(0, 2, 250);
+		glTranslatef(characterX, 2, 250);
 		glRotatef(180, 0, 1, 0);
 		drawCharacter();
 	}
@@ -529,14 +530,22 @@ void myDisplay(void)
 //=======================================================================
 void specialKeysEvents(int key, int x, int y) {
 	switch (key) {
-	case GLUT_KEY_UP: camera.rotateX(CAMERA_ROTATION_SPEED); break;
-	case GLUT_KEY_DOWN: camera.rotateX(-CAMERA_ROTATION_SPEED); break;
-	case GLUT_KEY_LEFT: camera.rotateY(CAMERA_ROTATION_SPEED); break;
-	case GLUT_KEY_RIGHT: camera.rotateY(-CAMERA_ROTATION_SPEED); break;
+	case GLUT_KEY_LEFT:
+		if (characterX > -6) {
+			characterX -= 0.5;
+		}
+		break;
+
+	case GLUT_KEY_RIGHT: 
+		if (characterX < 6) {
+			characterX += 0.5;
+		}
+		break;
 	}
 
 	glutPostRedisplay();
 }
+
 void keysEvents(unsigned char key, int x, int y) {
 	switch (key) {
 	case 'w': camera.moveY(CAMERA_MOVEMENT_SPEED); break;
@@ -545,6 +554,10 @@ void keysEvents(unsigned char key, int x, int y) {
 	case 'd': camera.moveX(-CAMERA_MOVEMENT_SPEED); break;
 	case 'q': camera.moveZ(CAMERA_MOVEMENT_SPEED); break;
 	case 'e': camera.moveZ(-CAMERA_MOVEMENT_SPEED); break;
+	case 'l': camera.rotateX(CAMERA_ROTATION_SPEED); break;
+	case 'j': camera.rotateX(-CAMERA_ROTATION_SPEED); break;
+	case 'i': camera.rotateY(CAMERA_ROTATION_SPEED); break;
+	case 'k': camera.rotateY(-CAMERA_ROTATION_SPEED); break;
 	case GLUT_KEY_ESCAPE: exit(EXIT_SUCCESS); break;
 	}
 
