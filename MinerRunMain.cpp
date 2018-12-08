@@ -44,7 +44,9 @@ int cameraZoom = 0;
 Model_3DS metalFence;
 Model_3DS woodenFence;
 Model_3DS cactus;
-
+Model_3DS goldChest;
+Model_3DS goldBag;
+Model_3DS trafficCone;
 // Textures
 GLTexture tex_ground;
 
@@ -187,8 +189,10 @@ void myDisplay(void)
 
 	// Draw house Model
 	glPushMatrix();
-	glRotatef(90.f, 1, 0, 0);
-	woodenFence.Draw();
+	//glRotatef(90.f, 1, 0, 0);
+	//glRotated(180.0, 0, 1, 0);
+	//glScaled(2, 2, 2);
+	trafficCone.Draw();
 	glPopMatrix();
 
 
@@ -314,7 +318,9 @@ void LoadAssets()
 	metalFence.Load("models/metal_fence/fance.3DS");
 	woodenFence.Load("models/wooden_fence/13076_Gothic_Wood_Fence_Panel_v2_l3.3ds");
 	cactus.Load("models/cactus/10436_Cactus_v1_max2010_it2.3ds");
-
+	goldChest.Load("models/gold_chest/ChestCartoon.3ds");
+	goldBag.Load("models/gold_bag/13450_Bag_of_Gold_v1_L3.3ds");
+	trafficCone.Load("models/traffic_cone/cone1_obj.3ds");
 
 	// Loading texture files
 	tex_ground.Load("Textures/ground.bmp");
