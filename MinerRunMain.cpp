@@ -48,6 +48,8 @@ Model_3DS goldChest;
 Model_3DS goldBag;
 Model_3DS trafficCone;
 Model_3DS goldArtifact;
+Model_3DS roadBarrier;
+
 // Textures
 GLTexture tex_ground;
 
@@ -190,10 +192,10 @@ void myDisplay(void)
 
 	// Draw house Model
 	glPushMatrix();
-	//glRotatef(90.f, 1, 0, 0);
+	glRotatef(90.f, 1, 0, 0);
 	//glRotated(180.0, 0, 1, 0);
 	//glScaled(2, 2, 2);
-	goldArtifact.Draw();
+	roadBarrier.Draw();
 	glPopMatrix();
 
 
@@ -323,9 +325,10 @@ void LoadAssets()
 	goldBag.Load("models/gold_bag/13450_Bag_of_Gold_v1_L3.3ds");
 	trafficCone.Load("models/traffic_cone/cone1_obj.3ds");
 	goldArtifact.Load("models/gold_artifact/13455_Gold_Doubloon_v1_l1.3ds");
+	roadBarrier.Load("models/road_barrier/road_barrier.3ds");
 
 	// Loading texture files
-	tex_ground.Load("Textures/ground.bmp");
+	tex_ground.Load("Textures/asphalt_road.bmp");
 	loadBMP(&tex, "Textures/blu-sky-3.bmp", true);
 }
 
