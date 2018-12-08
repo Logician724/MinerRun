@@ -127,7 +127,7 @@ Model_3DS goldArtifact;
 Model_3DS roadBarrier;
 
 // Textures
-GLTexture tex_ground;
+GLTexture tex_desert, tex_street;
 
 
 //=======================================================================
@@ -223,7 +223,10 @@ void RenderGround()
 
 	glEnable(GL_TEXTURE_2D);	// Enable 2D texturing
 
-	glBindTexture(GL_TEXTURE_2D, tex_ground.texture[0]);	// Bind the ground texture
+	if(isDesert)
+		glBindTexture(GL_TEXTURE_2D, tex_desert.texture[0]);	// Bind the ground texture
+	else
+		glBindTexture(GL_TEXTURE_2D, tex_street.texture[0]);
 
 	glPushMatrix();
 	glBegin(GL_QUADS);
@@ -246,7 +249,7 @@ void RenderGround()
 
 void drawRails() {
 	if (isDesert) {
-		for (int zLocation = 300; zLocation > -300; zLocation -= 30) {
+		for (int zLocation = camera.eye.z; zLocation > -300; zLocation -= 30) {
 			glPushMatrix();
 			glTranslatef(-7, 0, zLocation);
 			glScalef(0.5, 0.5, 3.0);
@@ -263,7 +266,7 @@ void drawRails() {
 		}
 	}
 	else {
-		for (int zLocation = 300; zLocation > -300; zLocation -= 30) {
+		for (int zLocation = camera.eye.z; zLocation > -300; zLocation -= 30) {
 			glPushMatrix();
 			glTranslatef(-7, 0, zLocation);
 			glScalef(0.5, 0.5, 2.0);
@@ -374,7 +377,8 @@ void LoadAssets()
 	roadBarrier.Load("models/road_barrier/road_barrier.3ds");
 
 	// Loading texture files
-	tex_ground.Load("Textures/desert.bmp");
+	tex_desert.Load("Textures/desert.bmp");
+	tex_street.Load("Textures/asphalt_road.bmp");
 	loadBMP(&tex, "Textures/blu-sky-3.bmp", true);
 
 }
