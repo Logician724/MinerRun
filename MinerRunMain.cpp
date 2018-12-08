@@ -14,6 +14,8 @@
 int WIDTH = 1280;
 int HEIGHT = 720;
 
+bool isDesert = true;
+
 // Camera
 class Vector3f {
 public:
@@ -53,7 +55,7 @@ class Camera {
 public:
 	Vector3f eye, center, up;
 
-	Camera(float eyeX = 1.0f, float eyeY = 1.0f, float eyeZ = 1.0f, float centerX = 0.0f, float centerY = 0.0f, float centerZ = 0.0f, float upX = 0.0f, float upY = 1.0f, float upZ = 0.0f) {
+	Camera(float eyeX = 0.0f, float eyeY = 2.0f, float eyeZ = 270.0f, float centerX = 0.0f, float centerY = 0.0f, float centerZ = 0.0f, float upX = 0.0f, float upY = 1.0f, float upZ = 0.0f) {
 		eye = Vector3f(eyeX, eyeY, eyeZ);
 		center = Vector3f(centerX, centerY, centerZ);
 		up = Vector3f(upX, upY, upZ);
@@ -106,7 +108,7 @@ Camera camera;
 GLdouble fovy = 45.0;
 GLdouble aspectRatio = (GLdouble)WIDTH / (GLdouble)HEIGHT;
 GLdouble zNear = 0.1;
-GLdouble zFar = 100;
+GLdouble zFar = 700;
 
 int cameraZoom = 0;
 
@@ -227,13 +229,13 @@ void RenderGround()
 	glBegin(GL_QUADS);
 	glNormal3f(0, 1, 0);	// Set quad normal direction.
 	glTexCoord2f(0, 0);		// Set tex coordinates ( Using (0,0) -> (5,5) with texture wrapping set to GL_REPEAT to simulate the ground repeated grass texture).
-	glVertex3f(-20, 0, -20);
+	glVertex3f(-700, 0, -700);
 	glTexCoord2f(5, 0);
-	glVertex3f(20, 0, -20);
+	glVertex3f(700, 0, -700);
 	glTexCoord2f(5, 5);
-	glVertex3f(20, 0, 20);
+	glVertex3f(700, 0, 700);
 	glTexCoord2f(0, 5);
-	glVertex3f(-20, 0, 20);
+	glVertex3f(-700, 0, 700);
 	glEnd();
 	glPopMatrix();
 
@@ -242,9 +244,50 @@ void RenderGround()
 	glColor3f(1, 1, 1);	// Set material back to white instead of grey used for the ground texture.
 }
 
+void drawRails() {
+	if (isDesert) {
+		for (int zLocation = 300; zLocation > -300; zLocation -= 30) {
+			glPushMatrix();
+			glTranslatef(-7, 0, zLocation);
+			glScalef(0.5, 0.5, 3.0);
+			glRotatef(90.f, 1, 0, 0);
+			roadBarrier.Draw();
+			glPopMatrix();
+
+			glPushMatrix();
+			glTranslatef(7, 0, zLocation);
+			glScalef(0.5, 0.5, 3.0);
+			glRotatef(90.f, 1, 0, 0);
+			roadBarrier.Draw();
+			glPopMatrix();
+		}
+	}
+	else {
+		for (int zLocation = 300; zLocation > -300; zLocation -= 30) {
+			glPushMatrix();
+			glTranslatef(-7, 0, zLocation);
+			//glScalef(0.5, 0.5, 3.0);
+			//glRotatef(90.f, 1, 0, 0);
+			//glRotatef(90.f, 0, 1, 0);
+			metalFence.Draw();
+			glPopMatrix();
+
+			glPushMatrix();
+			glTranslatef(7, 0, zLocation);
+			//glScalef(0.5, 0.5, 3.0);
+			//glRotatef(90.f, 1, 0, 0);
+			//glRotatef(90.f, 0, 1, 0);
+			metalFence.Draw();
+			glPopMatrix();
+		}
+	}
+}
+
 //=======================================================================
 // Display Function
 //=======================================================================
+int sceneMotion = 0;
+
 void myDisplay(void)
 {
 	InitCamera();
@@ -257,15 +300,13 @@ void myDisplay(void)
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, lightIntensity);
 
+
+	glPushMatrix();
+	glTranslatef(0,0,sceneMotion);
 	// Draw Ground
 	RenderGround();
-
-	// Draw house Model
-	glPushMatrix();
-	glRotatef(90.f, 1, 0, 0);
-	//glRotated(180.0, 0, 1, 0);
-	//glScaled(2, 2, 2);
-	roadBarrier.Draw();
+	// Draw rails
+	drawRails();
 	glPopMatrix();
 
 
@@ -279,7 +320,7 @@ void myDisplay(void)
 	glBindTexture(GL_TEXTURE_2D, tex);
 	gluQuadricTexture(qobj, true);
 	gluQuadricNormals(qobj, GL_SMOOTH);
-	gluSphere(qobj, 100, 100, 100);
+	gluSphere(qobj, 300, 100, 100);
 	gluDeleteQuadric(qobj);
 
 
@@ -333,8 +374,17 @@ void LoadAssets()
 	roadBarrier.Load("models/road_barrier/road_barrier.3ds");
 
 	// Loading texture files
-	tex_ground.Load("Textures/asphalt_road.bmp");
+	tex_ground.Load("Textures/desert.bmp");
 	loadBMP(&tex, "Textures/blu-sky-3.bmp", true);
+
+}
+//=======================================================================
+// Timer Functions
+//=======================================================================
+void sceneTimer(int val) {
+	sceneMotion++;
+	glutPostRedisplay();
+	glutTimerFunc(10, sceneTimer, 0);
 }
 
 //=======================================================================
@@ -356,7 +406,6 @@ void main(int argc, char** argv)
 
 	glutSpecialFunc(specialKeysEvents);
 	glutKeyboardFunc(keysEvents);
-
 	myInit();
 
 	LoadAssets();
@@ -368,5 +417,6 @@ void main(int argc, char** argv)
 
 	glShadeModel(GL_SMOOTH);
 
+	glutTimerFunc(10, sceneTimer, 0);
 	glutMainLoop();
 }
