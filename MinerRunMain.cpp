@@ -564,6 +564,18 @@ void keysEvents(unsigned char key, int x, int y) {
 	glutPostRedisplay();
 }
 
+void playerMouseMovement(int x, int y) {
+
+	if (x < WIDTH / 2) {
+		std::cout << "entered";
+		characterX = max(characterX - 0.5, -6);
+	}
+	else {
+		characterX = min(characterX + 0.5, 6);
+	}
+	glutPostRedisplay();
+}
+
 //=======================================================================
 // Assets Loading Function
 //=======================================================================
@@ -627,6 +639,8 @@ void main(int argc, char** argv)
 	glutCreateWindow(title);
 
 	glutDisplayFunc(myDisplay);
+
+	glutPassiveMotionFunc(playerMouseMovement);
 
 	glutSpecialFunc(specialKeysEvents);
 	glutKeyboardFunc(keysEvents);
