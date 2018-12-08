@@ -233,11 +233,11 @@ void RenderGround()
 	glNormal3f(0, 1, 0);	// Set quad normal direction.
 	glTexCoord2f(0, 0);		// Set tex coordinates ( Using (0,0) -> (5,5) with texture wrapping set to GL_REPEAT to simulate the ground repeated grass texture).
 	glVertex3f(-700, 0, -700);
-	glTexCoord2f(5, 0);
+	glTexCoord2f(175, 0);
 	glVertex3f(700, 0, -700);
-	glTexCoord2f(5, 5);
+	glTexCoord2f(175, 175);
 	glVertex3f(700, 0, 700);
-	glTexCoord2f(0, 5);
+	glTexCoord2f(0, 175);
 	glVertex3f(-700, 0, 700);
 	glEnd();
 	glPopMatrix();
