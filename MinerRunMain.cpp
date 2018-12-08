@@ -320,6 +320,42 @@ void drawRails() {
 	}
 }
 
+
+void drawInteractables() {
+	for (int i = 0; i < interactables.size(); i++) {
+		Interactable currentInteractable = interactables[i];
+		Vector3f currentOffset = currentInteractable.offset;
+		std::cout << currentOffset.x << " : " << currentOffset.y << " : " << currentOffset.z << "\n";
+		glPushMatrix();
+		glTranslated(currentOffset.x, currentOffset.y, currentOffset.z);
+		if (currentInteractable.type == COLLECTIBLE) {
+			if (isDesert) {
+				glScaled(0.3, 0.3, 0.3);
+				goldArtifact.Draw();
+			}
+			else {
+				glScaled(0.05, 0.05, 0.05);
+				goldBag.Draw();
+			}
+		}
+		else {
+			if (currentInteractable.type == OBSTACLE) {
+				if (isDesert) {
+					glScaled(0.01, 0.01, 0.01);
+					cactus.Draw();
+				}
+				else {
+					glTranslated(0, 0.95f, 0);
+					glRotated(90, 1, 0, 0);
+					glScaled(0.05, 0.05, 0.05);
+					trafficCone.Draw();
+				}
+			}
+		}
+		glPopMatrix();
+	}
+}
+
 GLdouble rotationOfArms = -30;
 bool swing = false;
 
@@ -455,39 +491,8 @@ void myDisplay(void)
 	RenderGround();
 	// Draw rails
 	drawRails();
-
-	for (int i = 0; i < interactables.size(); i++) {
-		Interactable currentInteractable = interactables[i];
-		Vector3f currentOffset = currentInteractable.offset;
-		std::cout << currentOffset.x << " : " << currentOffset.y << " : " << currentOffset.z << "\n";
-		glPushMatrix();
-		glTranslated(currentOffset.x, currentOffset.y, currentOffset.z);
-		if (currentInteractable.type == COLLECTIBLE) {
-			if (isDesert) {
-				glScaled(0.3, 0.3, 0.3);
-				goldArtifact.Draw();
-			}
-			else {
-				glScaled(0.05, 0.05, 0.05);
-				goldBag.Draw();
-			}
-		}
-		else {
-			if (currentInteractable.type == OBSTACLE) {
-				if (isDesert) {
-					glScaled(0.01, 0.01, 0.01);
-					cactus.Draw();
-				}
-				else {
-					glTranslated(0, 0.95f, 0);
-					glRotated(90, 1, 0, 0);
-					glScaled(0.05, 0.05, 0.05);
-					trafficCone.Draw();
-				}
-			}
-		}
-		glPopMatrix();
-	}
+	// Draw interactables (obstacles, and collectibles)
+	drawInteractables();
 
 	glPopMatrix();
 
