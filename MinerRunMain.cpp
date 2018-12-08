@@ -14,7 +14,7 @@
 int WIDTH = 1280;
 int HEIGHT = 720;
 
-bool isDesert = true;
+bool isDesert = false;
 
 // Camera
 class Vector3f {
@@ -266,17 +266,17 @@ void drawRails() {
 		for (int zLocation = 300; zLocation > -300; zLocation -= 30) {
 			glPushMatrix();
 			glTranslatef(-7, 0, zLocation);
-			//glScalef(0.5, 0.5, 3.0);
-			//glRotatef(90.f, 1, 0, 0);
-			//glRotatef(90.f, 0, 1, 0);
+			glScalef(0.5, 0.5, 2.0);
+			glRotatef(90, 0, 0, 1);
+			glRotatef(-90, 0, 1, 0);
 			metalFence.Draw();
 			glPopMatrix();
 
 			glPushMatrix();
 			glTranslatef(7, 0, zLocation);
-			//glScalef(0.5, 0.5, 3.0);
-			//glRotatef(90.f, 1, 0, 0);
-			//glRotatef(90.f, 0, 1, 0);
+			glScalef(0.5, 0.5, 2.0);
+			glRotatef(-90, 0, 0, 1);
+			glRotatef(90, 0, 1, 0);
 			metalFence.Draw();
 			glPopMatrix();
 		}
