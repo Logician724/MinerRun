@@ -115,7 +115,7 @@ GLdouble zNear = 0.1;
 GLdouble zFar = 700;
 
 int cameraZoom = 0;
-
+int sceneMotion = 0;
 
 GLuint tex;
 char title[] = "Miner Run";
@@ -255,7 +255,7 @@ void RenderGround()
 
 	glEnable(GL_TEXTURE_2D);	// Enable 2D texturing
 
-	if(isDesert)
+	if (isDesert)
 		glBindTexture(GL_TEXTURE_2D, tex_desert.texture[0]);	// Bind the ground texture
 	else
 		glBindTexture(GL_TEXTURE_2D, tex_street.texture[0]);
@@ -326,34 +326,38 @@ void drawInteractables() {
 		Interactable currentInteractable = interactables[i];
 		Vector3f currentOffset = currentInteractable.offset;
 		std::cout << currentOffset.x << " : " << currentOffset.y << " : " << currentOffset.z << "\n";
-		glPushMatrix();
-		glTranslated(currentOffset.x, currentOffset.y, currentOffset.z);
-		if (currentInteractable.type == COLLECTIBLE) {
-			if (isDesert) {
-				glScaled(0.3, 0.3, 0.3);
-				goldArtifact.Draw();
-			}
-			else {
-				glScaled(0.05, 0.05, 0.05);
-				goldBag.Draw();
-			}
-		}
-		else {
-			if (currentInteractable.type == OBSTACLE) {
+		// draw if within camera range
+		if (sceneMotion + currentOffset.z <= camera.eye.z + 20) {
+			glPushMatrix();
+			glTranslated(currentOffset.x, currentOffset.y, currentOffset.z);
+			if (currentInteractable.type == COLLECTIBLE) {
 				if (isDesert) {
-					glScaled(0.01, 0.01, 0.01);
-					cactus.Draw();
+					glScaled(0.3, 0.3, 0.3);
+					goldArtifact.Draw();
 				}
 				else {
-					glTranslated(0, 0.95f, 0);
-					glRotated(90, 1, 0, 0);
 					glScaled(0.05, 0.05, 0.05);
-					trafficCone.Draw();
+					goldBag.Draw();
 				}
 			}
+			else {
+				if (currentInteractable.type == OBSTACLE) {
+					if (isDesert) {
+						glScaled(0.01, 0.01, 0.01);
+						cactus.Draw();
+					}
+					else {
+						glTranslated(0, 0.95f, 0);
+						glRotated(90, 1, 0, 0);
+						glScaled(0.05, 0.05, 0.05);
+						trafficCone.Draw();
+					}
+				}
+			}
+			glPopMatrix();
 		}
-		glPopMatrix();
 	}
+
 }
 
 GLdouble rotationOfArms = -30;
@@ -463,7 +467,7 @@ void drawCharacter() {
 //=======================================================================
 // Display Function
 //=======================================================================
-int sceneMotion = 0;
+
 
 void myDisplay(void)
 {
@@ -572,14 +576,14 @@ void LoadAssets()
 // Timer Functions
 //=======================================================================
 void sceneAnim() {
-	sceneMotion+=3;
-	
+	sceneMotion += 3;
+
 	if (!swing) {
 		if (rotationOfArms > 30.0) {
 			swing = true;
 		}
 		else {
-			rotationOfArms+= 25;
+			rotationOfArms += 25;
 		}
 	}
 	else {
@@ -587,7 +591,7 @@ void sceneAnim() {
 			swing = false;
 		}
 		else {
-			rotationOfArms-= 25;
+			rotationOfArms -= 25;
 		}
 	}
 
