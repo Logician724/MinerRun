@@ -388,10 +388,9 @@ void LoadAssets()
 //=======================================================================
 // Timer Functions
 //=======================================================================
-void sceneTimer(int val) {
-	sceneMotion++;
+void sceneAnim() {
+	sceneMotion+=3;
 	glutPostRedisplay();
-	glutTimerFunc(10, sceneTimer, 0);
 }
 
 //=======================================================================
@@ -424,6 +423,6 @@ void main(int argc, char** argv)
 
 	glShadeModel(GL_SMOOTH);
 
-	glutTimerFunc(10, sceneTimer, 0);
+	glutIdleFunc(sceneAnim);
 	glutMainLoop();
 }
