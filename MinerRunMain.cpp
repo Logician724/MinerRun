@@ -4,6 +4,8 @@
 #include "GLTexture.h"
 #include <glut.h>
 #include <math.h>
+#include <iostream>
+#include <vector>
 
 #define GLUT_KEY_ESCAPE 27
 #define DEG2RAD(a) (a * 0.0174532925)
@@ -11,6 +13,8 @@
 #define CAMERA_ROTATION_SPEED 5
 #define CAMERA_MOVEMENT_SPEED 1
 
+
+#define INTERACTABLES_SIZE 50
 int WIDTH = 1280;
 int HEIGHT = 720;
 
@@ -129,6 +133,19 @@ Model_3DS roadBarrier;
 // Textures
 GLTexture tex_ground;
 
+// road dimensions
+
+float zLow = -300.0f;
+float zHigh = 300.0f;
+float xLow = -6.0f;
+float xHigh = 6.0f;
+
+enum InteractableType { OBSTACLE, COLLECTIBLE };
+typedef struct {
+	InteractableType type;
+	Vector3f offset;
+} Interactable;
+std::vector<Interactable> interactables;
 
 //=======================================================================
 // Lighting Configuration Function
@@ -210,6 +227,21 @@ void myInit(void)
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_NORMALIZE);
+	for (int i = 0; i < INTERACTABLES_SIZE; i++) {
+
+		float z = zLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (zHigh - zLow)));
+		float x = xLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (xHigh - xLow)));
+
+		Vector3f offset = Vector3f(x, 0, z);
+		InteractableType currentType;
+		if (i > INTERACTABLES_SIZE / 2) {
+			currentType = OBSTACLE;
+		}
+		else {
+			currentType = COLLECTIBLE;
+		}
+		interactables.push_back({ currentType, offset });
+	}
 }
 
 //=======================================================================
@@ -302,12 +334,44 @@ void myDisplay(void)
 
 
 	glPushMatrix();
-	glTranslatef(0,0,sceneMotion);
+	glTranslatef(0, 0, sceneMotion);
 	// Draw Ground
 	RenderGround();
 	// Draw rails
 	drawRails();
+
+	for (int i = 0; i < interactables.size(); i++) {
+		Interactable currentInteractable = interactables[i];
+		Vector3f currentOffset = currentInteractable.offset;
+		std::cout << currentOffset.x << " : " << currentOffset.y << " : " << currentOffset.z << "\n";
+		glPushMatrix();
+		glTranslated(currentOffset.z, currentOffset.y, currentOffset.x);
+		if (currentInteractable.type == COLLECTIBLE) {
+			if (isDesert) {
+				glScaled(0.1, 0.1, 0.1);
+				goldArtifact.Draw();
+			}
+			else {
+				goldBag.Draw();
+			}
+		}
+		else {
+			if (currentInteractable.type == OBSTACLE) {
+				if (isDesert) {
+					glScaled(0.01, 0.01, 0.01);
+					cactus.Draw();
+				}
+				else {
+					trafficCone.Draw();
+				}
+			}
+		}
+		glPopMatrix();
+	}
+
 	glPopMatrix();
+
+	//display interactables
 
 
 	//sky box
@@ -381,10 +445,15 @@ void LoadAssets()
 //=======================================================================
 // Timer Functions
 //=======================================================================
-void sceneTimer(int val) {
+
+
+//=======================================================================
+// Animation Function
+//=======================================================================
+void myAnimation() {
+
 	sceneMotion++;
 	glutPostRedisplay();
-	glutTimerFunc(10, sceneTimer, 0);
 }
 
 //=======================================================================
@@ -414,9 +483,7 @@ void main(int argc, char** argv)
 	glEnable(GL_LIGHT0);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_COLOR_MATERIAL);
-
 	glShadeModel(GL_SMOOTH);
-
-	glutTimerFunc(10, sceneTimer, 0);
+	glutIdleFunc(myAnimation);
 	glutMainLoop();
 }
