@@ -320,6 +320,110 @@ void drawRails() {
 	}
 }
 
+GLdouble rotationOfArms = -30;
+bool swing = false;
+
+void drawCharacter() {
+	glColor3f(0.88, 0.88, 0.88);
+
+	glPushMatrix();
+	{
+		// Head
+		glPushMatrix();
+		{
+			glTranslatef(0, 1.75, 0);
+			glScalef(0.8, 0.8, 0.8);
+			glutSolidCube(1);
+		}
+		glPopMatrix();
+
+		glColor3f(1, 0, 0);
+		// Eye 1
+		glPushMatrix();
+		{
+			glTranslatef(0.2, 2, 0.35);
+			glScalef(0.16, 0.16, 0.16);
+			glutSolidCube(1);
+		}
+		glPopMatrix();
+
+		// Eye 2
+		glPushMatrix();
+		{
+			glTranslatef(-0.2, 2, 0.35);
+			glScalef(0.16, 0.16, 0.16);
+			glutSolidCube(1);
+		}
+		glPopMatrix();
+
+		// Mouth
+		glPushMatrix();
+		{
+			glTranslatef(0, 1.5, 0.35);
+			glScalef(0.48, 0.16, 0.16);
+			glutSolidCube(1);
+		}
+		glPopMatrix();
+	}
+	glPopMatrix();
+
+	glColor3f(0.88, 0.88, 0.88);
+	// Body
+	glPushMatrix();
+	{
+		glTranslatef(0, 0.6, 0);
+		glScalef(0.6, 1.8, 0.6);
+		glutSolidCube(1);
+
+	}
+	glPopMatrix();
+
+	// Left Arm
+	glPushMatrix();
+	{
+		glTranslatef(-0.4, 1.3, 0);
+		glRotatef(rotationOfArms, 1, 0, 0);
+		glTranslatef(0, -0.6, 0);
+		glScalef(0.2, 1, 0.2);
+		glutSolidCube(1);
+	}
+	glPopMatrix();
+
+	// Right Arm
+	glPushMatrix();
+	{
+		glTranslatef(0.4, 1.3, 0);
+		glRotatef(-rotationOfArms, 1, 0, 0);
+		glTranslatef(0, -0.6, 0);
+		glScalef(0.2, 1, 0.2);
+		glutSolidCube(1);
+	}
+	glPopMatrix();
+
+	// Left Leg
+	glPushMatrix();
+	{
+		glTranslatef(-0.2, -0.3, 0);
+		glRotatef(-rotationOfArms, 1, 0, 0);
+		glTranslatef(0, -0.7, 0);
+		glScalef(0.3, 1.4, 0.3);
+		glutSolidCube(1);
+	}
+	glPopMatrix();
+
+	// Right Leg
+	glPushMatrix();
+	{
+		glTranslatef(0.2, -0.3, 0);
+		glRotatef(rotationOfArms, 1, 0, 0);
+		glTranslatef(0, -0.7, 0);
+		glScalef(0.3, 1.4, 0.3);
+		glutSolidCube(1);
+	}
+	glPopMatrix();
+}
+
+
 //=======================================================================
 // Display Function
 //=======================================================================
@@ -337,6 +441,13 @@ void myDisplay(void)
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, lightIntensity);
 
+	glPushMatrix();
+	{
+		glTranslatef(0, 2, 250);
+		glRotatef(180, 0, 1, 0);
+		drawCharacter();
+	}
+	glPopMatrix();
 
 	glPushMatrix();
 	glTranslatef(0, 0, sceneMotion);
@@ -457,6 +568,24 @@ void LoadAssets()
 //=======================================================================
 void sceneAnim() {
 	sceneMotion+=3;
+	
+	if (!swing) {
+		if (rotationOfArms > 30.0) {
+			swing = true;
+		}
+		else {
+			rotationOfArms+= 25;
+		}
+	}
+	else {
+		if (rotationOfArms < -30.0) {
+			swing = false;
+		}
+		else {
+			rotationOfArms-= 25;
+		}
+	}
+
 	glutPostRedisplay();
 }
 
