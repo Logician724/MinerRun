@@ -18,7 +18,7 @@
 int WIDTH = 1280;
 int HEIGHT = 720;
 
-bool isDesert = true;
+bool isDesert = false;
 
 // Camera
 class Vector3f {
@@ -131,7 +131,7 @@ Model_3DS goldArtifact;
 Model_3DS roadBarrier;
 
 // Textures
-GLTexture tex_ground;
+GLTexture tex_desert, tex_street;
 
 // road dimensions
 
@@ -255,18 +255,24 @@ void RenderGround()
 
 	glEnable(GL_TEXTURE_2D);	// Enable 2D texturing
 
-	glBindTexture(GL_TEXTURE_2D, tex_ground.texture[0]);	// Bind the ground texture
+	if(isDesert)
+		glBindTexture(GL_TEXTURE_2D, tex_desert.texture[0]);	// Bind the ground texture
+	else
+		glBindTexture(GL_TEXTURE_2D, tex_street.texture[0]);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 	glPushMatrix();
 	glBegin(GL_QUADS);
 	glNormal3f(0, 1, 0);	// Set quad normal direction.
 	glTexCoord2f(0, 0);		// Set tex coordinates ( Using (0,0) -> (5,5) with texture wrapping set to GL_REPEAT to simulate the ground repeated grass texture).
 	glVertex3f(-700, 0, -700);
-	glTexCoord2f(5, 0);
+	glTexCoord2f(175, 0);
 	glVertex3f(700, 0, -700);
-	glTexCoord2f(5, 5);
+	glTexCoord2f(175, 175);
 	glVertex3f(700, 0, 700);
-	glTexCoord2f(0, 5);
+	glTexCoord2f(0, 175);
 	glVertex3f(-700, 0, 700);
 	glEnd();
 	glPopMatrix();
@@ -278,16 +284,15 @@ void RenderGround()
 
 void drawRails() {
 	if (isDesert) {
-		for (int zLocation = 300; zLocation > -300; zLocation -= 30) {
+		for (int zLocation = camera.eye.z; zLocation > -300; zLocation -= 30) {
 			glPushMatrix();
-			glTranslatef(-7, 0, zLocation);
+			glTranslatef(-8, 0, zLocation);
 			glScalef(0.5, 0.5, 3.0);
 			glRotatef(90.f, 1, 0, 0);
 			roadBarrier.Draw();
 			glPopMatrix();
-
 			glPushMatrix();
-			glTranslatef(7, 0, zLocation);
+			glTranslatef(8, 0, zLocation);
 			glScalef(0.5, 0.5, 3.0);
 			glRotatef(90.f, 1, 0, 0);
 			roadBarrier.Draw();
@@ -295,20 +300,20 @@ void drawRails() {
 		}
 	}
 	else {
-		for (int zLocation = 300; zLocation > -300; zLocation -= 30) {
+		for (int zLocation = camera.eye.z; zLocation > -300; zLocation -= 30) {
 			glPushMatrix();
 			glTranslatef(-7, 0, zLocation);
-			//glScalef(0.5, 0.5, 3.0);
-			//glRotatef(90.f, 1, 0, 0);
-			//glRotatef(90.f, 0, 1, 0);
+			glScalef(0.5, 0.5, 2.0);
+			glRotatef(90, 0, 0, 1);
+			glRotatef(-90, 0, 1, 0);
 			metalFence.Draw();
 			glPopMatrix();
 
 			glPushMatrix();
 			glTranslatef(7, 0, zLocation);
-			//glScalef(0.5, 0.5, 3.0);
-			//glRotatef(90.f, 1, 0, 0);
-			//glRotatef(90.f, 0, 1, 0);
+			glScalef(0.5, 0.5, 2.0);
+			glRotatef(-90, 0, 0, 1);
+			glRotatef(90, 0, 1, 0);
 			metalFence.Draw();
 			glPopMatrix();
 		}
@@ -345,13 +350,14 @@ void myDisplay(void)
 		Vector3f currentOffset = currentInteractable.offset;
 		std::cout << currentOffset.x << " : " << currentOffset.y << " : " << currentOffset.z << "\n";
 		glPushMatrix();
-		glTranslated(currentOffset.z, currentOffset.y, currentOffset.x);
+		glTranslated(currentOffset.x, currentOffset.y, currentOffset.z);
 		if (currentInteractable.type == COLLECTIBLE) {
 			if (isDesert) {
-				glScaled(0.1, 0.1, 0.1);
+				glScaled(0.3, 0.3, 0.3);
 				goldArtifact.Draw();
 			}
 			else {
+				glScaled(0.05, 0.05, 0.05);
 				goldBag.Draw();
 			}
 		}
@@ -362,6 +368,9 @@ void myDisplay(void)
 					cactus.Draw();
 				}
 				else {
+					glTranslated(0, 0.95f, 0);
+					glRotated(90, 1, 0, 0);
+					glScaled(0.05, 0.05, 0.05);
 					trafficCone.Draw();
 				}
 			}
@@ -438,21 +447,16 @@ void LoadAssets()
 	roadBarrier.Load("models/road_barrier/road_barrier.3ds");
 
 	// Loading texture files
-	tex_ground.Load("Textures/desert.bmp");
+	tex_desert.Load("Textures/desert.bmp");
+	tex_street.Load("Textures/asphalt_road.bmp");
 	loadBMP(&tex, "Textures/blu-sky-3.bmp", true);
 
 }
 //=======================================================================
 // Timer Functions
 //=======================================================================
-
-
-//=======================================================================
-// Animation Function
-//=======================================================================
-void myAnimation() {
-
-	sceneMotion++;
+void sceneAnim() {
+	sceneMotion+=3;
 	glutPostRedisplay();
 }
 
@@ -484,6 +488,6 @@ void main(int argc, char** argv)
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_COLOR_MATERIAL);
 	glShadeModel(GL_SMOOTH);
-	glutIdleFunc(myAnimation);
+	glutIdleFunc(sceneAnim);
 	glutMainLoop();
 }
