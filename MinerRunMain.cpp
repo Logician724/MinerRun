@@ -709,6 +709,15 @@ void drawScore(float x, float y, float z)
 	glPopMatrix();
 }
 
+void drawChest() {
+	glPushMatrix();
+	glTranslatef(0, 0, -305);
+	glRotatef(-90, 0, 0, 1);
+	glRotatef(90, 0, 1, 0);
+	goldChest.Draw();
+	glPopMatrix();
+}
+
 //=======================================================================
 // Display Function
 //=======================================================================
@@ -735,6 +744,9 @@ void myDisplay(void)
 	drawGroundSegment();
 	// Draw interactables (obstacles, and collectibles)
 	drawInteractables();
+	// draw chest at goal
+	drawChest();
+
 	glPopMatrix();
 
 	glPushMatrix();
@@ -748,7 +760,6 @@ void myDisplay(void)
 	gluQuadricNormals(qobj, GL_SMOOTH);
 	gluSphere(qobj, 300, 100, 100);
 	gluDeleteQuadric(qobj);
-
 	glPopMatrix();
 
 	if (isThirdPersonPerspective) {
