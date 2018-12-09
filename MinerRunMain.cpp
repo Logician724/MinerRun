@@ -640,6 +640,12 @@ void playerMouseMovement(int x, int y) {
 	glutPostRedisplay();
 }
 
+void characterMouseJump(int button, int state, int x, int y) {
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+		isJumping = true;
+	}
+}
+
 //=======================================================================
 // Assets Loading Function
 //=======================================================================
@@ -746,6 +752,7 @@ void main(int argc, char** argv)
 
 	glutSpecialFunc(specialKeysEvents);
 	glutKeyboardFunc(keysEvents);
+	glutMouseFunc(characterMouseJump);
 	myInit();
 
 	LoadAssets();
