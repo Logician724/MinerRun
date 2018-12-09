@@ -127,7 +127,7 @@ Model_3DS goldArtifact;
 Model_3DS roadBarrier;
 
 // Textures
-GLTexture tex_desert, tex_street;
+GLTexture tex_desert, tex_street, tex_shirt, tex_hair, tex_pants, tex_sleeves;
 
 
 //=======================================================================
@@ -494,6 +494,12 @@ void LoadAssets()
 	tex_desert.Load("Textures/desert.bmp");
 	tex_street.Load("Textures/asphalt_road.bmp");
 	loadBMP(&tex, "Textures/blu-sky-3.bmp", true);
+	
+	// Character Textures
+	tex_hair.Load("Textures/hair.bmp");
+	tex_sleeves.Load("Textures/sleeves.bmp");
+	tex_pants.Load("Textures/pants.bmp");
+	tex_shirt.Load("Textures/shirt.bmp");
 
 }
 //=======================================================================
