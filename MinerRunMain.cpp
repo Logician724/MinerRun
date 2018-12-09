@@ -156,11 +156,13 @@ Model_3DS roadBarrier;
 GLTexture tex_desert, tex_street, tex_shirt, tex_hair, tex_pants, tex_sleeves;
 
 // road dimensions
-
 float zLow = -300.0f;
 float zHigh = 300.0f;
 float xLow = -6.0f;
 float xHigh = 6.0f;
+
+// Score
+int score = 0;
 
 enum InteractableType { OBSTACLE, COLLECTIBLE };
 typedef struct {
@@ -546,12 +548,43 @@ void drawCharacter() {
 	glPopMatrix();
 }
 
+//=======================================================================
+// Draw String Function(s)
+//=======================================================================
+void drawString(float x, float y, float z, char* str)
+{
+	glPushMatrix();
+	void *font = GLUT_BITMAP_TIMES_ROMAN_24;
+	glColor3f(0, 0, 0);
+	glRasterPos3f(x, y, z);
+
+	for (char* c = str; *c != '\0'; c++)
+	{
+		glutBitmapCharacter(font, *c); // Updates the position
+	}
+	glPopMatrix();
+}
+
+void drawScore(float x, float y, float z)
+{
+	glPushMatrix();
+	void *font = GLUT_BITMAP_TIMES_ROMAN_24;
+	glColor3f(0, 0, 0);
+	glRasterPos3f(x, y, z);
+
+	char *scoreStr = (char *)malloc(10);
+	itoa(score, scoreStr, 10);
+
+	for (char* c = scoreStr; *c != '\0'; c++)
+	{
+		glutBitmapCharacter(font, *c); // Updates the position
+	}
+	glPopMatrix();
+}
 
 //=======================================================================
 // Display Function
 //=======================================================================
-
-
 void myDisplay(void)
 {
 	InitCamera();
@@ -594,7 +627,13 @@ void myDisplay(void)
 
 	glPopMatrix();
 
-
+	if (isThirdPersonPerspective) {
+		drawString(-67, 2.8, camera.eye.z - 100, "Score: ");
+		drawScore(-59, 2.8, camera.eye.z - 100);
+	} else {
+		drawString(-70 + characterX, 27, camera.eye.z - 100, "Score: ");
+		drawScore(-62 + characterX, 27, camera.eye.z - 100);
+	}
 
 	glutSwapBuffers();
 }
