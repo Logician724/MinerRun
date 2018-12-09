@@ -19,11 +19,12 @@ irrklang::ISoundEngine* soundEgnine;
 #define CAMERA_ROTATION_SPEED 5
 #define CAMERA_MOVEMENT_SPEED 1
 
-
 #define INTERACTABLES_SIZE 50
 int WIDTH = 1280;
 int HEIGHT = 720;
 
+//pause game flag
+bool pause = false;
 // game display flags and variables
 bool isDesert = true;
 bool isThirdPersonPerspective = true;
@@ -34,77 +35,93 @@ float jumpOffset = 0;
 bool isGoingUp = true;
 bool isJumping = false;
 
-void initializeGroundSegments() {
+void initializeGroundSegments()
+{
 	float beginning = 240.0;
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 10; i++)
+	{
 		groundSegmentsZTranslation[i] = beginning;
 		beginning -= 30.0;
 	}
 }
 
 // Camera
-class Vector3f {
+class Vector3f
+{
 public:
 	float x, y, z;
 
-	Vector3f(float _x = 0.0f, float _y = 0.0f, float _z = 0.0f) {
+	Vector3f(float _x = 0.0f, float _y = 0.0f, float _z = 0.0f)
+	{
 		x = _x;
 		y = _y;
 		z = _z;
 	}
 
-	Vector3f operator+(Vector3f &v) {
+	Vector3f operator+(Vector3f &v)
+	{
 		return Vector3f(x + v.x, y + v.y, z + v.z);
 	}
 
-	Vector3f operator-(Vector3f &v) {
+	Vector3f operator-(Vector3f &v)
+	{
 		return Vector3f(x - v.x, y - v.y, z - v.z);
 	}
 
-	Vector3f operator*(float n) {
+	Vector3f operator*(float n)
+	{
 		return Vector3f(x * n, y * n, z * n);
 	}
 
-	Vector3f operator/(float n) {
+	Vector3f operator/(float n)
+	{
 		return Vector3f(x / n, y / n, z / n);
 	}
 
-	Vector3f unit() {
+	Vector3f unit()
+	{
 		return *this / sqrt(x * x + y * y + z * z);
 	}
 
-	Vector3f cross(Vector3f v) {
+	Vector3f cross(Vector3f v)
+	{
 		return Vector3f(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x);
 	}
 };
-class Camera {
+class Camera
+{
 public:
 	Vector3f eye, center, up;
 
-	Camera(float eyeX = 0.0f, float eyeY = 10.0f, float eyeZ = 260.0f, float centerX = 0.0f, float centerY = 0.0f, float centerZ = 238.0f, float upX = 0.0f, float upY = 1.0f, float upZ = 0.0f) {
+	Camera(float eyeX = 0.0f, float eyeY = 10.0f, float eyeZ = 260.0f, float centerX = 0.0f, float centerY = 0.0f, float centerZ = 238.0f, float upX = 0.0f, float upY = 1.0f, float upZ = 0.0f)
+	{
 		eye = Vector3f(eyeX, eyeY, eyeZ);
 		center = Vector3f(centerX, centerY, centerZ);
 		up = Vector3f(upX, upY, upZ);
 	}
 
-	void moveX(float d) {
+	void moveX(float d)
+	{
 		Vector3f right = up.cross(center - eye).unit();
 		eye = eye + right * d;
 		center = center + right * d;
 	}
 
-	void moveY(float d) {
+	void moveY(float d)
+	{
 		eye = eye + up.unit() * d;
 		center = center + up.unit() * d;
 	}
 
-	void moveZ(float d) {
+	void moveZ(float d)
+	{
 		Vector3f view = (center - eye).unit();
 		eye = eye + view * d;
 		center = center + view * d;
 	}
 
-	void rotateX(float a) {
+	void rotateX(float a)
+	{
 		Vector3f view = (center - eye).unit();
 		Vector3f right = up.cross(view).unit();
 		view = view * cos(DEG2RAD(a)) + up * sin(DEG2RAD(a));
@@ -112,7 +129,8 @@ public:
 		center = eye + view;
 	}
 
-	void rotateY(float a) {
+	void rotateY(float a)
+	{
 		Vector3f view = (center - eye).unit();
 		Vector3f right = up.cross(view).unit();
 		view = view * cos(DEG2RAD(a)) + right * sin(DEG2RAD(a));
@@ -120,12 +138,12 @@ public:
 		center = eye + view;
 	}
 
-	void look() {
+	void look()
+	{
 		gluLookAt(
 			eye.x, eye.y, eye.z,
 			center.x, center.y, center.z,
-			up.x, up.y, up.z
-		);
+			up.x, up.y, up.z);
 	}
 };
 Camera camera;
@@ -158,23 +176,57 @@ GLTexture tex_desert, tex_street, tex_shirt, tex_hair, tex_pants, tex_sleeves;
 
 // road dimensions
 
-float zLow = -300.0f;
-float zHigh = 300.0f;
-float xLow = -6.0f;
-float xHigh = 6.0f;
+float roadZLow = -300.0f;
+float roadZHigh = 300.0f;
+float roadXLow = -6.0f;
+float roadXHigh = 6.0f;
+// character dimensions
+float characterZMin = 248.0f;
+float characterZMax = 252.0f;
+float characterXMin = -0.75;
+float characterXMax = 0.75;
 
-enum InteractableType { OBSTACLE, COLLECTIBLE };
-typedef struct {
+// interactable offsets for collisions
+
+// traffic cone
+float coneXMinOffset = -0.5f;
+float coneXMaxOffset = 0.5f;
+float coneYOffset = 2.0f;
+// gold bag
+float bagXMinOffset = -0.4f;
+float bagXMaxOffset = 0.4f;
+float bagYOffset = 0.8f;
+// cactus
+float cactusXMinOffset = -0.1f;
+float cactusXMaxOffset = 0.1f;
+float cactusYOffset = 2.0f;
+// artifact
+float artifactXMinOffset = -0.3f;
+float artifactXMaxOffset = 0.3f;
+float artifactYOffset = 0.6f;
+
+//score 
+int score = 0;
+enum InteractableType
+{
+	OBSTACLE,
+	COLLECTIBLE
+};
+typedef struct
+{
 	InteractableType type;
 	Vector3f offset;
+	bool isHit = false;
 } Interactable;
 std::vector<Interactable> interactables;
 
 //=======================================================================
 // Camera Perspectives 3rd and 1st
 //=======================================================================
-void switchPerspective() {
-	if (isThirdPersonPerspective) {
+void switchPerspective()
+{
+	if (isThirdPersonPerspective)
+	{
 		// transition to 1st person
 		isThirdPersonPerspective = false;
 		camera.eye.x = characterX;
@@ -184,7 +236,8 @@ void switchPerspective() {
 		camera.center.y = 0;
 		camera.center.z = 220;
 	}
-	else {
+	else
+	{
 		// transition to 3rd person
 		isThirdPersonPerspective = true;
 		camera.eye.x = 0;
@@ -251,7 +304,8 @@ void testLight() {
 //=======================================================================
 // Camera Configuration Function
 //=======================================================================
-void InitCamera(void) {
+void InitCamera(void)
+{
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
@@ -290,32 +344,43 @@ void InitMaterial()
 	glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
 }
 
+
 //=======================================================================
-// OpengGL Configuration Function
+// Interactable init function
 //=======================================================================
-void myInit(void)
-{
-	glClearColor(0.0, 0.0, 0.0, 0.0);
+void initInteractables() {
+	for (int i = 0; i < INTERACTABLES_SIZE; i++)
+	{
 
-	InitMaterial();
-
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_NORMALIZE);
-	for (int i = 0; i < INTERACTABLES_SIZE; i++) {
-
-		float z = zLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (zHigh - zLow)));
-		float x = xLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (xHigh - xLow)));
+		float z = roadZLow + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (roadZHigh - roadZLow)));
+		float x = roadXLow + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (roadXHigh - roadXLow)));
 
 		Vector3f offset = Vector3f(x, 0, z);
 		InteractableType currentType;
-		if (i > INTERACTABLES_SIZE / 2) {
+		if (i > INTERACTABLES_SIZE / 2)
+		{
 			currentType = OBSTACLE;
 		}
-		else {
+		else
+		{
 			currentType = COLLECTIBLE;
 		}
-		interactables.push_back({ currentType, offset });
+		interactables.push_back({ currentType, offset, false });
 	}
+}
+
+//=======================================================================
+// OpengGL Configuration Function
+//=======================================================================
+
+
+void myInit(void)
+{
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	InitMaterial();
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_NORMALIZE);
+	initInteractables();
 }
 
 //=======================================================================
@@ -323,14 +388,14 @@ void myInit(void)
 //=======================================================================
 void RenderGround()
 {
-	glDisable(GL_LIGHTING);	// Disable lighting 
+	glDisable(GL_LIGHTING); // Disable lighting
 
-	glColor3f(0.6, 0.6, 0.6);	// Dim the ground texture a bit
+	glColor3f(0.6, 0.6, 0.6); // Dim the ground texture a bit
 
-	glEnable(GL_TEXTURE_2D);	// Enable 2D texturing
+	glEnable(GL_TEXTURE_2D); // Enable 2D texturing
 
 	if (isDesert)
-		glBindTexture(GL_TEXTURE_2D, tex_desert.texture[0]);	// Bind the ground texture
+		glBindTexture(GL_TEXTURE_2D, tex_desert.texture[0]); // Bind the ground texture
 	else
 		glBindTexture(GL_TEXTURE_2D, tex_street.texture[0]);
 
@@ -339,8 +404,8 @@ void RenderGround()
 
 	glPushMatrix();
 	glBegin(GL_QUADS);
-	glNormal3f(0, 1, 0);    // Set quad normal direction.
-	glTexCoord2f(0, 0);     // Set tex coordinates ( Using (0,0) -> (5,5) with texture wrapping set to GL_REPEAT to simulate the ground repeated grass texture).
+	glNormal3f(0, 1, 0); // Set quad normal direction.
+	glTexCoord2f(0, 0);  // Set tex coordinates ( Using (0,0) -> (5,5) with texture wrapping set to GL_REPEAT to simulate the ground repeated grass texture).
 	glVertex3f(-7, 0, -15);
 	glTexCoord2f(1, 0);
 	glVertex3f(7, 0, -15);
@@ -351,12 +416,13 @@ void RenderGround()
 	glEnd();
 	glPopMatrix();
 
-	glEnable(GL_LIGHTING);	// Enable lighting again for other entites coming throung the pipeline.
+	glEnable(GL_LIGHTING); // Enable lighting again for other entites coming throung the pipeline.
 
-	glColor3f(1, 1, 1);	// Set material back to white instead of grey used for the ground texture.
+	glColor3f(1, 1, 1); // Set material back to white instead of grey used for the ground texture.
 }
 
-void drawRoadBarrier() {
+void drawRoadBarrier()
+{
 	glPushMatrix();
 	glTranslatef(-8.1, 0, 0);
 	glScalef(0.5, 0.5, 3.0);
@@ -371,7 +437,8 @@ void drawRoadBarrier() {
 	glPopMatrix();
 }
 
-void drawMetalFence() {
+void drawMetalFence()
+{
 	glPushMatrix();
 	glTranslatef(-7, 0, 0.35);
 	glScalef(0.5, 0.5, 1.9);
@@ -407,12 +474,14 @@ void drawWoodenFence() {
 bool fence = false;
 void drawGroundSegment() {
 
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 10; i++)
+	{
 		glPushMatrix();
-		
+
 		glTranslatef(0, 0, groundSegmentsZTranslation[i]);
 		RenderGround();
-		if (isDesert) {
+		if (isDesert)
+		{
 			drawRoadBarrier();
 		}
 		else {
@@ -426,36 +495,43 @@ void drawGroundSegment() {
 
 		glPopMatrix();
 	}
-
 }
 
-
-void drawInteractables() {
-	for (int i = 0; i < interactables.size(); i++) {
+void drawInteractables()
+{
+	for (int i = 0; i < interactables.size(); i++)
+	{
 		Interactable currentInteractable = interactables[i];
 		Vector3f currentOffset = currentInteractable.offset;
-		//std::cout << currentOffset.x << " : " << currentOffset.y << " : " << currentOffset.z << "\n";
 		// draw if within camera range
-		if (sceneMotion + currentOffset.z <= camera.eye.z && sceneMotion + currentOffset.z >= camera.eye.z - 250) {
+		if (sceneMotion + currentOffset.z <= camera.eye.z && sceneMotion + currentOffset.z >= camera.eye.z - 250)
+		{
 			glPushMatrix();
 			glTranslated(currentOffset.x, currentOffset.y, currentOffset.z);
-			if (currentInteractable.type == COLLECTIBLE) {
-				if (isDesert) {
+			if (currentInteractable.type == COLLECTIBLE && !currentInteractable.isHit)
+			{
+				if (isDesert)
+				{
 					glScaled(0.3, 0.3, 0.3);
 					goldArtifact.Draw();
 				}
-				else {
+				else
+				{
 					glScaled(0.05, 0.05, 0.05);
 					goldBag.Draw();
 				}
 			}
-			else {
-				if (currentInteractable.type == OBSTACLE) {
-					if (isDesert) {
+			else
+			{
+				if (currentInteractable.type == OBSTACLE)
+				{
+					if (isDesert)
+					{
 						glScaled(0.01, 0.01, 0.01);
 						cactus.Draw();
 					}
-					else {
+					else
+					{
 						glTranslated(0, 0.95f, 0);
 						glRotated(90, 1, 0, 0);
 						glScaled(0.05, 0.05, 0.05);
@@ -466,13 +542,13 @@ void drawInteractables() {
 			glPopMatrix();
 		}
 	}
-
 }
 
 GLdouble rotationOfArms = -30;
 bool swing = false;
 
-void drawCharacter() {
+void drawCharacter()
+{
 	glColor3f(0.88, 0.88, 0.88);
 
 	glPushMatrix();
@@ -591,12 +667,43 @@ void drawCharacter() {
 	glPopMatrix();
 }
 
+//=======================================================================
+// Draw String Function(s)
+//=======================================================================
+void drawString(float x, float y, float z, char* str)
+{
+	glPushMatrix();
+	void *font = GLUT_BITMAP_TIMES_ROMAN_24;
+	glColor3f(0, 0, 0);
+	glRasterPos3f(x, y, z);
+
+	for (char* c = str; *c != '\0'; c++)
+	{
+		glutBitmapCharacter(font, *c); // Updates the position
+	}
+	glPopMatrix();
+}
+
+void drawScore(float x, float y, float z)
+{
+	glPushMatrix();
+	void *font = GLUT_BITMAP_TIMES_ROMAN_24;
+	glColor3f(0, 0, 0);
+	glRasterPos3f(x, y, z);
+
+	char *scoreStr = (char *)malloc(10);
+	itoa(score, scoreStr, 10);
+
+	for (char* c = scoreStr; *c != '\0'; c++)
+	{
+		glutBitmapCharacter(font, *c); // Updates the position
+	}
+	glPopMatrix();
+}
 
 //=======================================================================
 // Display Function
 //=======================================================================
-
-
 void myDisplay(void)
 {
 	InitCamera();
@@ -624,7 +731,7 @@ void myDisplay(void)
 
 	glPushMatrix();
 	glTranslatef(0, 0, 250);
-	GLUquadricObj * qobj;
+	GLUquadricObj *qobj;
 	qobj = gluNewQuadric();
 	glTranslated(50, 0, 0);
 	glRotated(90, 1, 0, 1);
@@ -636,7 +743,13 @@ void myDisplay(void)
 
 	glPopMatrix();
 
-
+	if (isThirdPersonPerspective) {
+		drawString(-67, 2.8, camera.eye.z - 100, "Score: ");
+		drawScore(-59, 2.8, camera.eye.z - 100);
+	} else {
+		drawString(-70 + characterX, 27, camera.eye.z - 100, "Score: ");
+		drawScore(-62 + characterX, 27, camera.eye.z - 100);
+	}
 
 	glutSwapBuffers();
 }
@@ -644,22 +757,27 @@ void myDisplay(void)
 //=======================================================================
 // Keyboard Function
 //=======================================================================
-void specialKeysEvents(int key, int x, int y) {
-	switch (key) {
+void specialKeysEvents(int key, int x, int y)
+{
+	switch (key)
+	{
 	case GLUT_KEY_LEFT:
-		if (characterX > -6) {
+		if (characterX > -6)
+		{
 			characterX -= 0.5;
 		}
 		break;
 
-	case GLUT_KEY_RIGHT: 
-		if (characterX < 6) {
+	case GLUT_KEY_RIGHT:
+		if (characterX < 6)
+		{
 			characterX += 0.5;
 		}
 		break;
 	}
-	
-	if (!isThirdPersonPerspective) {
+
+	if (!isThirdPersonPerspective)
+	{
 		camera.eye.x = characterX;
 		camera.center.x = characterX;
 		camera.look();
@@ -682,6 +800,9 @@ void keysEvents(unsigned char key, int x, int y) {
 	case 'j': camera.rotateY(CAMERA_ROTATION_SPEED); break;
 	case 'l': camera.rotateY(-CAMERA_ROTATION_SPEED); break;
 	case ' ': isJumping = true;	break; // Make the character jump.
+	case 'm':
+		pause = !pause;
+		break;
 	case GLUT_KEY_ESCAPE: exit(EXIT_SUCCESS); break;
 	}
 
@@ -689,12 +810,12 @@ void keysEvents(unsigned char key, int x, int y) {
 }
 
 void playerMouseMovement(int x, int y) {
-	std::cout << x << std::endl;
 	if (x < 1100 && x > 300) {
 		characterX = ((x - 300) / (800 / 12)) - 6;
 	}
 
-	if (!isThirdPersonPerspective) {
+	if (!isThirdPersonPerspective)
+	{
 		camera.eye.x = characterX;
 		camera.center.x = characterX;
 		camera.look();
@@ -728,66 +849,170 @@ void LoadAssets()
 	tex_desert.Load("Textures/desert.bmp");
 	tex_street.Load("Textures/asphalt_road.bmp");
 	loadBMP(&tex, "Textures/blu-sky-3.bmp", true);
-	
+
 	// Character Textures
 	tex_hair.Load("Textures/hair.bmp");
 	tex_sleeves.Load("Textures/sleeves.bmp");
 	tex_pants.Load("Textures/pants.bmp");
 	tex_shirt.Load("Textures/shirt.bmp");
+}
 
+void handleCollisions()
+{
+	for (int i = 0; i < interactables.size(); i++)
+	{
+		Interactable currentInteractable = interactables[i];
+		Vector3f currentOffset = currentInteractable.offset;
+		// if the interactable is within the z axis range as a character
+
+		if (!currentInteractable.isHit && currentOffset.z + sceneMotion >= characterZMin && currentOffset.z + sceneMotion <= characterZMax)
+		{
+			// start inspecting the interactable location on X and Y offsets and y
+
+			if (currentInteractable.type == OBSTACLE)
+			{ // cactus
+				if (isDesert)
+				{//cactus
+					if ( // if the player cut the x line of this object
+						(characterXMin + characterX <= (currentOffset.x + cactusXMinOffset) && characterXMax + characterX >= (currentOffset.x + cactusXMinOffset)) ||
+						(characterXMin + characterX <= (currentOffset.x + cactusXMaxOffset) && characterXMax + characterX >= (currentOffset.x + cactusXMaxOffset)))
+					{
+						if (jumpOffset <= cactusYOffset) {
+							std::cout << "cactus collision coordinates on X and Y offsets\n";
+							std::cout << "cactus: " << currentOffset.x + cactusXMinOffset << " --> " << currentOffset.x + cactusXMaxOffset << " --> " << cactusYOffset << "\n";
+							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
+							interactables[i].isHit = true;
+							std::cout << "I got hit by cactus\n";
+						}
+					}
+				}
+				else
+				{ // cone
+					if (
+						(characterXMin + characterX <= (currentOffset.x + coneXMinOffset) && characterXMax + characterX >= (currentOffset.x + coneXMinOffset)) ||
+						(characterXMin + characterX <= (currentOffset.x + coneXMaxOffset) && characterXMax + characterX >= (currentOffset.x + coneXMaxOffset)))
+					{
+						if (jumpOffset <= coneYOffset) {
+							std::cout << "cone collision coordinates on X and Y offsets\n";
+							std::cout << "cone: " << currentOffset.x + coneXMinOffset << " --> " << currentOffset.x + coneXMaxOffset << " --> " << coneYOffset << "\n";
+							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
+							interactables[i].isHit = true;
+							std::cout << "I got hit by cone\n";
+						}
+
+					}
+				}
+			}
+
+			if (currentInteractable.type == COLLECTIBLE)
+			{
+				if (isDesert)
+				{		 //artifact
+					if ( // if the player cut the x line of this obstacle
+						(characterXMin + characterX <= (currentOffset.x + artifactXMinOffset) && characterXMax + characterX >= (currentOffset.x + artifactXMinOffset)) ||
+						(characterXMin + characterX <= (currentOffset.x + artifactXMaxOffset) && characterXMax + characterX >= (currentOffset.x + artifactXMaxOffset)))
+					{
+						if (jumpOffset <= artifactYOffset) {
+							std::cout << "artifact collision coordinates on X and Y offsets\n";
+							std::cout << "artifact: " << currentOffset.x + artifactXMinOffset << " --> " << currentOffset.x + artifactXMaxOffset << " --> " << artifactYOffset << "\n";
+							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
+							score += 10;
+							interactables[i].isHit = true;
+							std::cout << "I got an artifact, I am rich\n";
+						}
+
+					}
+				}
+				else
+				{
+					if ( //gold bag
+						(characterXMin + characterX <= (currentOffset.x + bagXMinOffset) && characterXMax + characterX >= (currentOffset.x + bagXMinOffset)) ||
+						(characterXMin + characterX <= (currentOffset.x + bagXMaxOffset) && characterXMax + characterX >= (currentOffset.x + bagXMaxOffset)))
+					{
+						if (jumpOffset <= bagYOffset) {
+							std::cout << "bag collision coordinates on X and Y offsets\n";
+							std::cout << "bag: " << currentOffset.x + bagXMinOffset << " --> " << currentOffset.x + bagXMaxOffset << " --> " << bagYOffset << "\n";
+							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
+							score += 10;
+							interactables[i].isHit = true;
+							std::cout << "I got a gold bag, goodbye GUC.\n";
+						}
+					}
+				}
+			}
+		}
+	}
 }
 //=======================================================================
 // Animation Functions
 //=======================================================================
-void characterJump(int val) {
-	
-	if (jumpOffset >= 4) {
+void characterJump(int val)
+{
+
+	if (jumpOffset >= 4)
+	{
 		isGoingUp = false;
 	}
 
-	if (isGoingUp) {
-		jumpOffset += 0.5;
-		if (!isThirdPersonPerspective) {
-			camera.eye.y += 0.5;
+	if (isGoingUp)
+	{
+		jumpOffset += 0.8;
+		if (!isThirdPersonPerspective)
+		{
+			camera.eye.y += 0.8;
 			camera.look();
 		}
 	}
-	else {
-		jumpOffset -= 0.5;
-		if (!isThirdPersonPerspective) {
-			camera.eye.y -= 0.5;
+	else
+	{
+		jumpOffset -= 0.8;
+		if (!isThirdPersonPerspective)
+		{
+			camera.eye.y -= 0.8;
 			camera.look();
 		}
 	}
 
-	if (jumpOffset <= 0) {
+	if (jumpOffset <= 0)
+	{
 		isGoingUp = true;
 		isJumping = false;
+		jumpOffset = 0;
 	}
 }
 
-void sceneAnim() {
-	sceneMotion += 1;
+void sceneAnim()
+{
+	if (!pause)
+		sceneMotion += 1;
 
-	for (int i = 0; i < 10; i++) {
-		if (sceneMotion + groundSegmentsZTranslation[i] >= 270) {
+	for (int i = 0; i < 10; i++)
+	{
+		if (sceneMotion + groundSegmentsZTranslation[i] >= 270)
+		{
 			groundSegmentsZTranslation[i] -= 300;
 		}
 	}
 
-	if (!swing) {
-		if (rotationOfArms > 30.0) {
+	if (!swing)
+	{
+		if (rotationOfArms > 30.0)
+		{
 			swing = true;
 		}
-		else {
+		else
+		{
 			rotationOfArms += 25;
 		}
 	}
-	else {
-		if (rotationOfArms < -30.0) {
+	else
+	{
+		if (rotationOfArms < -30.0)
+		{
 			swing = false;
 		}
-		else {
+		else
+		{
 			rotationOfArms -= 25;
 		}
 	}
@@ -795,13 +1020,15 @@ void sceneAnim() {
 	if (isJumping)
 		characterJump(0);
 
+	handleCollisions();
+
 	glutPostRedisplay();
 }
 
 //=======================================================================
 // Main Function
 //=======================================================================
-void main(int argc, char** argv)
+void main(int argc, char **argv)
 {
 	//soundEgnine = irrklang::createIrrKlangDevice();
 
@@ -834,7 +1061,5 @@ void main(int argc, char** argv)
 	glEnable(GL_COLOR_MATERIAL);
 	glShadeModel(GL_SMOOTH);
 	glutIdleFunc(sceneAnim);
-
-	glutFullScreen();
 	glutMainLoop();
 }
