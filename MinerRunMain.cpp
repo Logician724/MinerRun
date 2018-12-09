@@ -18,9 +18,15 @@
 int WIDTH = 1280;
 int HEIGHT = 720;
 
+// game display flags and variables
 bool isDesert = true;
 bool isThirdPersonPerspective = true;
 float groundSegmentsZTranslation[10];
+
+// jump variables
+float jumpOffset = 0;
+bool isGoingUp = true;
+bool isJumping = false;
 
 void initializeGroundSegments() {
 	float beginning = 240.0;
@@ -555,7 +561,7 @@ void myDisplay(void)
 
 	glPushMatrix();
 	{
-		glTranslatef(characterX, 2, 250);
+		glTranslatef(characterX, 2 + jumpOffset, 250);
 		glRotatef(180, 0, 1, 0);
 		drawCharacter();
 	}
@@ -628,6 +634,7 @@ void keysEvents(unsigned char key, int x, int y) {
 	case 'k': camera.rotateX(-CAMERA_ROTATION_SPEED); break;
 	case 'j': camera.rotateY(CAMERA_ROTATION_SPEED); break;
 	case 'l': camera.rotateY(-CAMERA_ROTATION_SPEED); break;
+	case ' ': isJumping = true; break; // Make the character jump.
 	case GLUT_KEY_ESCAPE: exit(EXIT_SUCCESS); break;
 	}
 
@@ -680,8 +687,35 @@ void LoadAssets()
 
 }
 //=======================================================================
-// Timer Functions
+// Animation Functions
 //=======================================================================
+void characterJump(int val) {
+	
+	if (jumpOffset >= 4) {
+		isGoingUp = false;
+	}
+
+	if (isGoingUp) {
+		jumpOffset += 0.5;
+		if (!isThirdPersonPerspective) {
+			camera.eye.y += 0.5;
+			camera.look();
+		}
+	}
+	else {
+		jumpOffset -= 0.5;
+		if (!isThirdPersonPerspective) {
+			camera.eye.y -= 0.5;
+			camera.look();
+		}
+	}
+
+	if (jumpOffset <= 0) {
+		isGoingUp = true;
+		isJumping = false;
+	}
+}
+
 void sceneAnim() {
 	sceneMotion += 1;
 
@@ -707,6 +741,9 @@ void sceneAnim() {
 			rotationOfArms -= 25;
 		}
 	}
+
+	if (isJumping)
+		characterJump(0);
 
 	glutPostRedisplay();
 }
