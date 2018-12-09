@@ -19,6 +19,16 @@ int WIDTH = 1280;
 int HEIGHT = 720;
 
 bool isDesert = true;
+bool isThirdPersonPerspective = true;
+float groundSegmentsZTranslation[10];
+
+void initializeGroundSegments() {
+	float beginning = 240.0;
+	for (int i = 0; i < 10; i++) {
+		groundSegmentsZTranslation[i] = beginning;
+		beginning -= 30.0;
+	}
+}
 
 // Camera
 class Vector3f {
@@ -59,7 +69,7 @@ class Camera {
 public:
 	Vector3f eye, center, up;
 
-	Camera(float eyeX = 0.0f, float eyeY = 2.0f, float eyeZ = 270.0f, float centerX = 0.0f, float centerY = 0.0f, float centerZ = 0.0f, float upX = 0.0f, float upY = 1.0f, float upZ = 0.0f) {
+	Camera(float eyeX = 0.0f, float eyeY = 10.0f, float eyeZ = 260.0f, float centerX = 0.0f, float centerY = 0.0f, float centerZ = 238.0f, float upX = 0.0f, float upY = 1.0f, float upZ = 0.0f) {
 		eye = Vector3f(eyeX, eyeY, eyeZ);
 		center = Vector3f(centerX, centerY, centerZ);
 		up = Vector3f(upX, upY, upZ);
@@ -147,6 +157,34 @@ typedef struct {
 	Vector3f offset;
 } Interactable;
 std::vector<Interactable> interactables;
+
+//=======================================================================
+// Camera Perspectives 3rd and 1st
+//=======================================================================
+void switchPerspective() {
+	if (isThirdPersonPerspective) {
+		// transition to 1st person
+		isThirdPersonPerspective = false;
+		camera.eye.x = characterX;
+		camera.eye.y = 4;
+		camera.eye.z = 249;
+		camera.center.x = characterX;
+		camera.center.y = 0;
+		camera.center.z = 220;
+	}
+	else {
+		// transition to 3rd person
+		isThirdPersonPerspective = true;
+		camera.eye.x = 0;
+		camera.eye.y = 10;
+		camera.eye.z = 260;
+		camera.center.x = 0;
+		camera.center.y = 0;
+		camera.center.z = 238;
+	}
+
+	camera.look();
+}
 
 //=======================================================================
 // Lighting Configuration Function
@@ -266,15 +304,15 @@ void RenderGround()
 
 	glPushMatrix();
 	glBegin(GL_QUADS);
-	glNormal3f(0, 1, 0);	// Set quad normal direction.
-	glTexCoord2f(0, 0);		// Set tex coordinates ( Using (0,0) -> (5,5) with texture wrapping set to GL_REPEAT to simulate the ground repeated grass texture).
-	glVertex3f(-700, 0, -700);
-	glTexCoord2f(175, 0);
-	glVertex3f(700, 0, -700);
-	glTexCoord2f(175, 175);
-	glVertex3f(700, 0, 700);
-	glTexCoord2f(0, 175);
-	glVertex3f(-700, 0, 700);
+	glNormal3f(0, 1, 0);    // Set quad normal direction.
+	glTexCoord2f(0, 0);     // Set tex coordinates ( Using (0,0) -> (5,5) with texture wrapping set to GL_REPEAT to simulate the ground repeated grass texture).
+	glVertex3f(-7, 0, -15);
+	glTexCoord2f(1, 0);
+	glVertex3f(7, 0, -15);
+	glTexCoord2f(1, 1);
+	glVertex3f(7, 0, 15);
+	glTexCoord2f(0, 1);
+	glVertex3f(-7, 0, 15);
 	glEnd();
 	glPopMatrix();
 
@@ -283,42 +321,56 @@ void RenderGround()
 	glColor3f(1, 1, 1);	// Set material back to white instead of grey used for the ground texture.
 }
 
-void drawRails() {
-	if (isDesert) {
-		for (int zLocation = camera.eye.z; zLocation > -300; zLocation -= 30) {
-			glPushMatrix();
-			glTranslatef(-8.1, 0, zLocation);
-			glScalef(0.5, 0.5, 3.0);
-			glRotatef(90.f, 1, 0, 0);
-			roadBarrier.Draw();
-			glPopMatrix();
-			glPushMatrix();
-			glTranslatef(8.3, 0, zLocation);
-			glScalef(0.5, 0.5, 3.0);
-			glRotatef(90.f, 1, 0, 0);
-			roadBarrier.Draw();
-			glPopMatrix();
-		}
-	}
-	else {
-		for (int zLocation = camera.eye.z; zLocation > -300; zLocation -= 30) {
-			glPushMatrix();
-			glTranslatef(-7, 0, zLocation);
-			glScalef(0.5, 0.5, 2.0);
-			glRotatef(90, 0, 0, 1);
-			glRotatef(-90, 0, 1, 0);
-			metalFence.Draw();
-			glPopMatrix();
+void drawRoadBarrier() {
+	glPushMatrix();
+	glTranslatef(-8.1, 0, 0);
+	glScalef(0.5, 0.5, 3.0);
+	glRotatef(90.f, 1, 0, 0);
+	roadBarrier.Draw();
+	glPopMatrix();
+	glPushMatrix();
+	glTranslatef(8.3, 0, 0);
+	glScalef(0.5, 0.5, 3);
+	glRotatef(90.f, 1, 0, 0);
+	roadBarrier.Draw();
+	glPopMatrix();
+}
 
-			glPushMatrix();
-			glTranslatef(7, 0, zLocation);
-			glScalef(0.5, 0.5, 2.0);
-			glRotatef(-90, 0, 0, 1);
-			glRotatef(90, 0, 1, 0);
-			metalFence.Draw();
-			glPopMatrix();
+void drawMetalFence() {
+	glPushMatrix();
+	glTranslatef(-7, 0, 0.35);
+	glScalef(0.5, 0.5, 1.9);
+	glRotatef(90, 0, 0, 1);
+	glRotatef(-90, 0, 1, 0);
+	metalFence.Draw();
+	glPopMatrix();
+	glPushMatrix();
+	glTranslatef(7, 0, 0.35);
+	glScalef(0.5, 0.5, 1.9);
+	glRotatef(180, 0, 1, 0);
+	glRotatef(-90, 0, 0, 1);
+	glRotatef(90, 0, 1, 0);
+	metalFence.Draw();
+	glPopMatrix();
+}
+
+void drawGroundSegment() {
+
+	for (int i = 0; i < 10; i++) {
+		glPushMatrix();
+		
+		glTranslatef(0, 0, groundSegmentsZTranslation[i]);
+		RenderGround();
+		if (isDesert) {
+			drawRoadBarrier();
 		}
+		else {
+			drawMetalFence();
+		}
+
+		glPopMatrix();
 	}
+
 }
 
 
@@ -328,7 +380,7 @@ void drawInteractables() {
 		Vector3f currentOffset = currentInteractable.offset;
 		//std::cout << currentOffset.x << " : " << currentOffset.y << " : " << currentOffset.z << "\n";
 		// draw if within camera range
-		if (sceneMotion + currentOffset.z <= camera.eye.z + 20) {
+		if (sceneMotion + currentOffset.z <= camera.eye.z && sceneMotion + currentOffset.z >= camera.eye.z - 250) {
 			glPushMatrix();
 			glTranslated(currentOffset.x, currentOffset.y, currentOffset.z);
 			if (currentInteractable.type == COLLECTIBLE) {
@@ -493,20 +545,13 @@ void myDisplay(void)
 	glPushMatrix();
 	glTranslatef(0, 0, sceneMotion);
 	// Draw Ground
-	RenderGround();
-	// Draw rails
-	drawRails();
+	drawGroundSegment();
 	// Draw interactables (obstacles, and collectibles)
 	drawInteractables();
-
 	glPopMatrix();
 
-	//display interactables
-
-
-	//sky box
 	glPushMatrix();
-
+	glTranslatef(0, 0, 250);
 	GLUquadricObj * qobj;
 	qobj = gluNewQuadric();
 	glTranslated(50, 0, 0);
@@ -516,7 +561,6 @@ void myDisplay(void)
 	gluQuadricNormals(qobj, GL_SMOOTH);
 	gluSphere(qobj, 300, 100, 100);
 	gluDeleteQuadric(qobj);
-
 
 	glPopMatrix();
 
@@ -542,12 +586,19 @@ void specialKeysEvents(int key, int x, int y) {
 		}
 		break;
 	}
+	
+	if (!isThirdPersonPerspective) {
+		camera.eye.x = characterX;
+		camera.center.x = characterX;
+		camera.look();
+	}
 
 	glutPostRedisplay();
 }
 
 void keysEvents(unsigned char key, int x, int y) {
 	switch (key) {
+	case 'z': switchPerspective(); break;   // Switch from 1st person to 3rd person or vice versa.
 	case 'w': camera.moveY(CAMERA_MOVEMENT_SPEED); break;
 	case 's': camera.moveY(-CAMERA_MOVEMENT_SPEED); break;
 	case 'a': camera.moveX(CAMERA_MOVEMENT_SPEED); break;
@@ -567,12 +618,18 @@ void keysEvents(unsigned char key, int x, int y) {
 void playerMouseMovement(int x, int y) {
 
 	if (x < WIDTH / 2) {
-		std::cout << "entered";
 		characterX = max(characterX - 0.5, -6);
 	}
 	else {
 		characterX = min(characterX + 0.5, 6);
 	}
+
+	if (!isThirdPersonPerspective) {
+		camera.eye.x = characterX;
+		camera.center.x = characterX;
+		camera.look();
+	}
+
 	glutPostRedisplay();
 }
 
@@ -601,7 +658,13 @@ void LoadAssets()
 // Timer Functions
 //=======================================================================
 void sceneAnim() {
-	sceneMotion += 3;
+	sceneMotion += 1;
+
+	for (int i = 0; i < 10; i++) {
+		if (sceneMotion + groundSegmentsZTranslation[i] >= 270) {
+			groundSegmentsZTranslation[i] -= 300;
+		}
+	}
 
 	if (!swing) {
 		if (rotationOfArms > 30.0) {
@@ -641,6 +704,8 @@ void main(int argc, char** argv)
 	glutDisplayFunc(myDisplay);
 
 	glutPassiveMotionFunc(playerMouseMovement);
+
+	initializeGroundSegments();
 
 	glutSpecialFunc(specialKeysEvents);
 	glutKeyboardFunc(keysEvents);
