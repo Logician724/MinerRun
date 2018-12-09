@@ -18,9 +18,15 @@
 int WIDTH = 1280;
 int HEIGHT = 720;
 
+// game display flags and variables
 bool isDesert = true;
 bool isThirdPersonPerspective = true;
 float groundSegmentsZTranslation[10];
+
+// jump variables
+float jumpOffset = 0;
+bool isGoingUp = true;
+bool isJumping = false;
 
 void initializeGroundSegments() {
 	float beginning = 240.0;
@@ -142,7 +148,7 @@ Model_3DS goldArtifact;
 Model_3DS roadBarrier;
 
 // Textures
-GLTexture tex_desert, tex_street;
+GLTexture tex_desert, tex_street, tex_shirt, tex_hair, tex_pants, tex_sleeves;
 
 // road dimensions
 
@@ -424,9 +430,14 @@ void drawCharacter() {
 		// Head
 		glPushMatrix();
 		{
+			glEnable(GL_TEXTURE_GEN_S);
+			glEnable(GL_TEXTURE_GEN_T);
+			glBindTexture(GL_TEXTURE_2D, tex_hair.texture[0]);
 			glTranslatef(0, 1.75, 0);
 			glScalef(0.8, 0.8, 0.8);
 			glutSolidCube(1);
+			glDisable(GL_TEXTURE_GEN_S);
+			glDisable(GL_TEXTURE_GEN_T);
 		}
 		glPopMatrix();
 
@@ -464,16 +475,23 @@ void drawCharacter() {
 	// Body
 	glPushMatrix();
 	{
+		glEnable(GL_TEXTURE_GEN_S);
+		glEnable(GL_TEXTURE_GEN_T);
+		glBindTexture(GL_TEXTURE_2D, tex_shirt.texture[0]);
 		glTranslatef(0, 0.6, 0);
 		glScalef(0.6, 1.8, 0.6);
 		glutSolidCube(1);
-
+		glDisable(GL_TEXTURE_GEN_S);
+		glDisable(GL_TEXTURE_GEN_T);
 	}
 	glPopMatrix();
 
 	// Left Arm
 	glPushMatrix();
 	{
+		glEnable(GL_TEXTURE_GEN_S);
+		glEnable(GL_TEXTURE_GEN_T);
+		glBindTexture(GL_TEXTURE_2D, tex_sleeves.texture[0]);
 		glTranslatef(-0.4, 1.3, 0);
 		glRotatef(rotationOfArms, 1, 0, 0);
 		glTranslatef(0, -0.6, 0);
@@ -490,12 +508,17 @@ void drawCharacter() {
 		glTranslatef(0, -0.6, 0);
 		glScalef(0.2, 1, 0.2);
 		glutSolidCube(1);
+		glDisable(GL_TEXTURE_GEN_S);
+		glDisable(GL_TEXTURE_GEN_T);
 	}
 	glPopMatrix();
 
 	// Left Leg
 	glPushMatrix();
 	{
+		glEnable(GL_TEXTURE_GEN_S);
+		glEnable(GL_TEXTURE_GEN_T);
+		glBindTexture(GL_TEXTURE_2D, tex_pants.texture[0]);
 		glTranslatef(-0.2, -0.3, 0);
 		glRotatef(-rotationOfArms, 1, 0, 0);
 		glTranslatef(0, -0.7, 0);
@@ -512,6 +535,8 @@ void drawCharacter() {
 		glTranslatef(0, -0.7, 0);
 		glScalef(0.3, 1.4, 0.3);
 		glutSolidCube(1);
+		glDisable(GL_TEXTURE_GEN_S);
+		glDisable(GL_TEXTURE_GEN_T);
 	}
 	glPopMatrix();
 }
@@ -536,7 +561,7 @@ void myDisplay(void)
 
 	glPushMatrix();
 	{
-		glTranslatef(characterX, 2, 250);
+		glTranslatef(characterX, 2 + jumpOffset, 250);
 		glRotatef(180, 0, 1, 0);
 		drawCharacter();
 	}
@@ -609,6 +634,7 @@ void keysEvents(unsigned char key, int x, int y) {
 	case 'k': camera.rotateX(-CAMERA_ROTATION_SPEED); break;
 	case 'j': camera.rotateY(CAMERA_ROTATION_SPEED); break;
 	case 'l': camera.rotateY(-CAMERA_ROTATION_SPEED); break;
+	case ' ': isJumping = true; break; // Make the character jump.
 	case GLUT_KEY_ESCAPE: exit(EXIT_SUCCESS); break;
 	}
 
@@ -649,11 +675,44 @@ void LoadAssets()
 	tex_desert.Load("Textures/desert.bmp");
 	tex_street.Load("Textures/asphalt_road.bmp");
 	loadBMP(&tex, "Textures/blu-sky-3.bmp", true);
+	
+	// Character Textures
+	tex_hair.Load("Textures/hair.bmp");
+	tex_sleeves.Load("Textures/sleeves.bmp");
+	tex_pants.Load("Textures/pants.bmp");
+	tex_shirt.Load("Textures/shirt.bmp");
 
 }
 //=======================================================================
-// Timer Functions
+// Animation Functions
 //=======================================================================
+void characterJump(int val) {
+	
+	if (jumpOffset >= 4) {
+		isGoingUp = false;
+	}
+
+	if (isGoingUp) {
+		jumpOffset += 0.5;
+		if (!isThirdPersonPerspective) {
+			camera.eye.y += 0.5;
+			camera.look();
+		}
+	}
+	else {
+		jumpOffset -= 0.5;
+		if (!isThirdPersonPerspective) {
+			camera.eye.y -= 0.5;
+			camera.look();
+		}
+	}
+
+	if (jumpOffset <= 0) {
+		isGoingUp = true;
+		isJumping = false;
+	}
+}
+
 void sceneAnim() {
 	sceneMotion += 1;
 
@@ -679,6 +738,9 @@ void sceneAnim() {
 			rotationOfArms -= 25;
 		}
 	}
+
+	if (isJumping)
+		characterJump(0);
 
 	glutPostRedisplay();
 }
