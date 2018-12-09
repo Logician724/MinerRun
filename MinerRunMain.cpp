@@ -6,6 +6,7 @@
 #include <math.h>
 #include <iostream>
 #include <vector>
+#include <stdlib.h> 
 
 // Sound Library
 #include <include/irrKlang.h>
@@ -24,7 +25,7 @@ int WIDTH = 1280;
 int HEIGHT = 720;
 
 // game display flags and variables
-bool isDesert = false;
+bool isDesert = true;
 bool isThirdPersonPerspective = true;
 float groundSegmentsZTranslation[10];
 
@@ -210,20 +211,41 @@ void InitLightSource()
 	glEnable(GL_LIGHT0);
 
 	// Define Light source 0 ambient light
-	GLfloat ambient[] = { 0.1f, 0.1f, 0.1, 1.0f };
+	GLfloat ambient[] = { 0.4f, 0.4f, 0.4f, 1.0f };
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
 
 	// Define Light source 0 diffuse light
 	GLfloat diffuse[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
 
 	// Define Light source 0 Specular light
 	GLfloat specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
+	//glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
 
 	// Finally, define light source 0 position in World Space
 	GLfloat light_position[] = { 0.0f, 10.0f, 0.0f, 1.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+}
+
+void testLight() {
+
+	glEnable(GL_LIGHT1);
+
+	glPushMatrix();
+	{
+		glLoadIdentity();
+		GLfloat diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+		glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse);
+
+		glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 10.0);
+
+		GLfloat spot_direction[] = { 1, 1, 0 };
+		glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
+
+		GLfloat light_position[] = { 0, 1, 230, 0.0f };
+		glLightfv(GL_LIGHT1, GL_POSITION, light_position);
+	}
+	glPopMatrix();
 }
 
 //=======================================================================
@@ -259,7 +281,9 @@ void InitMaterial()
 	// Set Material's Specular Color
 	// Will be applied to all objects
 	GLfloat specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+	//glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+
+	//glMaterialfv(GL_FRONT, GL_DIFFUSE, specular);
 
 	// Set Material's Shine value (0->128)
 	GLfloat shininess[] = { 96.0f };
@@ -380,7 +404,7 @@ void drawWoodenFence() {
 	woodenFence.Draw();
 	glPopMatrix();
 }
-
+bool fence = false;
 void drawGroundSegment() {
 
 	for (int i = 0; i < 10; i++) {
@@ -392,8 +416,12 @@ void drawGroundSegment() {
 			drawRoadBarrier();
 		}
 		else {
-			// drawMetalFence();
-			drawWoodenFence();
+			if (fence) {
+				drawMetalFence();
+			}
+			else {
+				drawWoodenFence();
+			}
 		}
 
 		glPopMatrix();
@@ -572,14 +600,11 @@ void drawCharacter() {
 void myDisplay(void)
 {
 	InitCamera();
+
 	InitLightSource();
+	//testLight();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	GLfloat lightIntensity[] = { 0.7, 0.7, 0.7, 1.0f };
-	GLfloat lightPosition[] = { 0.0f, 100.0f, 0.0f, 0.0f };
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, lightIntensity);
 
 	glPushMatrix();
 	{
