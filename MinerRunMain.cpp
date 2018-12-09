@@ -24,7 +24,7 @@ int WIDTH = 1280;
 int HEIGHT = 720;
 
 // game display flags and variables
-bool isDesert = true;
+bool isDesert = false;
 bool isThirdPersonPerspective = true;
 float groundSegmentsZTranslation[10];
 
@@ -365,6 +365,22 @@ void drawMetalFence() {
 	glPopMatrix();
 }
 
+void drawWoodenFence() {
+	glPushMatrix();
+	glTranslatef(-7, 0, 0.35);
+	glScalef(0.05, 0.05, 0.2);
+	glRotatef(-90, 0, 1, 0);
+	woodenFence.Draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(7, 0, 0.35);
+	glScalef(0.05, 0.05, 0.2);
+	glRotatef(90, 0, 1, 0);
+	woodenFence.Draw();
+	glPopMatrix();
+}
+
 void drawGroundSegment() {
 
 	for (int i = 0; i < 10; i++) {
@@ -376,7 +392,8 @@ void drawGroundSegment() {
 			drawRoadBarrier();
 		}
 		else {
-			drawMetalFence();
+			// drawMetalFence();
+			drawWoodenFence();
 		}
 
 		glPopMatrix();
