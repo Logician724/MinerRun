@@ -18,8 +18,8 @@
 int WIDTH = 1280;
 int HEIGHT = 720;
 
-bool isDesert = false;
-
+bool isDesert = true;
+bool pause = false;
 // Camera
 class Vector3f {
 public:
@@ -135,15 +135,39 @@ GLTexture tex_desert, tex_street;
 
 // road dimensions
 
-float zLow = -300.0f;
-float zHigh = 300.0f;
-float xLow = -6.0f;
-float xHigh = 6.0f;
+float roadZLow = -300.0f;
+float roadZHigh = 300.0f;
+float roadXLow = -6.0f;
+float roadXHigh = 6.0f;
+// character dimensions
+float characterZMin = 248.0f;
+float characterZMax = 252.0f;
+float characterXMin = -0.75;
+float characterXMax = 0.75;
+
+// interactable offsets for collisions
+
+// traffic cone
+float coneXMinOffset = -2.0f;
+float coneXMaxOffset = 2.0f;
+
+// gold bag
+float bagXMinOffset = -1.0f;
+float bagXMaxOffset = 1.0f;
+
+// cactus
+float cactusXMinOffset = -0.1f;
+float cactusXMaxOffset = 0.1f;
+
+// artifact
+float artifactXMinOffset = -0.3f;
+float artifactXMaxOffset = 0.3f;
 
 enum InteractableType { OBSTACLE, COLLECTIBLE };
 typedef struct {
 	InteractableType type;
 	Vector3f offset;
+	bool isHit = false;
 } Interactable;
 std::vector<Interactable> interactables;
 
@@ -229,8 +253,8 @@ void myInit(void)
 	glEnable(GL_NORMALIZE);
 	for (int i = 0; i < INTERACTABLES_SIZE; i++) {
 
-		float z = zLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (zHigh - zLow)));
-		float x = xLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (xHigh - xLow)));
+		float z = roadZLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (roadZHigh - roadZLow)));
+		float x = roadXLow + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (roadXHigh - roadXLow)));
 
 		Vector3f offset = Vector3f(x, 0, z);
 		InteractableType currentType;
@@ -240,7 +264,7 @@ void myInit(void)
 		else {
 			currentType = COLLECTIBLE;
 		}
-		interactables.push_back({ currentType, offset });
+		interactables.push_back({ currentType, offset,false });
 	}
 }
 
@@ -325,7 +349,7 @@ void drawInteractables() {
 	for (int i = 0; i < interactables.size(); i++) {
 		Interactable currentInteractable = interactables[i];
 		Vector3f currentOffset = currentInteractable.offset;
-		std::cout << currentOffset.x << " : " << currentOffset.y << " : " << currentOffset.z << "\n";
+		//std::cout << currentOffset.x << " : " << currentOffset.y << " : " << currentOffset.z << "\n";
 		// draw if within camera range
 		if (sceneMotion + currentOffset.z <= camera.eye.z + 20) {
 			glPushMatrix();
@@ -545,6 +569,7 @@ void keysEvents(unsigned char key, int x, int y) {
 	case 'd': camera.moveX(-CAMERA_MOVEMENT_SPEED); break;
 	case 'q': camera.moveZ(CAMERA_MOVEMENT_SPEED); break;
 	case 'e': camera.moveZ(-CAMERA_MOVEMENT_SPEED); break;
+	case 'm': pause = !pause; break;
 	case GLUT_KEY_ESCAPE: exit(EXIT_SUCCESS); break;
 	}
 
@@ -572,12 +597,69 @@ void LoadAssets()
 	loadBMP(&tex, "Textures/blu-sky-3.bmp", true);
 
 }
+
+void handleCollisions() {
+	for (int i = 0; i < interactables.size(); i++) {
+		Interactable currentInteractable = interactables[i];
+		Vector3f currentOffset = currentInteractable.offset;
+		// if the interactable is within the z axis range as a character 
+
+		if (!currentInteractable.isHit && currentOffset.z + sceneMotion >= characterZMin && currentOffset.z + sceneMotion <= characterZMax) {
+			// start inspecting the interactable location on x and y
+
+			if (currentInteractable.type == OBSTACLE) { // cactus
+				if (isDesert) { //cactus
+					if ( // if the player cut the x line of this object
+						(characterXMin <= (currentOffset.x + cactusXMinOffset) && characterXMax >= (currentOffset.x + cactusXMinOffset)) ||
+						(characterXMin <= (currentOffset.x + cactusXMaxOffset) && characterXMax >= (currentOffset.x + cactusXMaxOffset))) {
+						std::cout << "cactus collision coordinates on X\n";
+						std::cout << "cactus: " << currentOffset.x + cactusXMinOffset << " --> " << currentOffset.x + cactusXMaxOffset << "\n";
+						std::cout << "character: " << characterXMin << " --> " << characterXMax << "\n";
+						interactables[i].isHit = true;
+						std::cout << "I got hit by cactus\n";
+
+					}
+				}
+				else { // cone
+					if (
+						(characterXMin <= (currentOffset.x + cactusXMinOffset) && characterXMax >= (currentOffset.x + cactusXMinOffset)) ||
+						(characterXMin <= (currentOffset.x + cactusXMaxOffset) && characterXMax >= (currentOffset.x + cactusXMaxOffset))) {
+						interactables[i].isHit = true;
+						std::cout << "I got hit by cone\n";
+					}
+				}
+
+			}
+
+			if (currentInteractable.type == COLLECTIBLE) {
+				if (isDesert) { //artifact
+					if ( // if the player cut the x line of this obstacle
+						(characterXMin <= (currentOffset.x + artifactXMinOffset) && characterXMax >= (currentOffset.x + artifactXMinOffset)) ||
+						(characterXMin <= (currentOffset.x + artifactXMaxOffset) && characterXMax >= (currentOffset.x + artifactXMaxOffset))) {
+						interactables[i].isHit = true;
+						std::cout << "I got an artifact, I am rich\n";
+					}
+				}
+				else {
+					if ( //gold bag
+						(characterXMin <= (currentOffset.x + bagXMinOffset) && characterXMax >= (currentOffset.x + bagXMinOffset)) ||
+						(characterXMin <= (currentOffset.x + bagXMaxOffset) && characterXMax >= (currentOffset.x + bagXMaxOffset))) {
+						interactables[i].isHit = true;
+						std::cout << "I got a gold bag, goodbye GUC.\n";
+
+					}
+				}
+
+			}
+		}
+	}
+}
 //=======================================================================
-// Timer Functions
+// Idle Func
 //=======================================================================
 void sceneAnim() {
-	sceneMotion += 3;
-
+	if (!pause)
+		sceneMotion += 1.5;
 	if (!swing) {
 		if (rotationOfArms > 30.0) {
 			swing = true;
@@ -594,6 +676,8 @@ void sceneAnim() {
 			rotationOfArms -= 25;
 		}
 	}
+
+	handleCollisions();
 
 	glutPostRedisplay();
 }
