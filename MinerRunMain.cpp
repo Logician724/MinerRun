@@ -25,6 +25,10 @@ int HEIGHT = 720;
 
 //pause game flag
 bool pause = false;
+
+// game end flag
+bool hasEnded = false;
+
 // game display flags and variables
 bool isDesert = true;
 bool isThirdPersonPerspective = true;
@@ -37,6 +41,7 @@ bool isJumping = false;
 
 // method signatures
 void switchLevel();
+void startNewGame();
 
 void initializeGroundSegments()
 {
@@ -763,12 +768,26 @@ void myDisplay(void)
 	glPopMatrix();
 
 	if (isThirdPersonPerspective) {
-		drawString(-67, 2.8, camera.eye.z - 100, "Score: ");
-		drawScore(-59, 2.8, camera.eye.z - 100);
+		if (hasEnded) {
+			drawString(0, 2.8, camera.eye.z - 50, "Game Over");
+			drawString(0, 0, camera.eye.z - 50, "Score: ");
+			drawScore(3, 0, camera.eye.z - 50);
+		}
+		else {
+			drawString(-67, 2.8, camera.eye.z - 100, "Score: ");
+			drawScore(-59, 2.8, camera.eye.z - 100);
+		}
 	}
 	else {
-		drawString(-70 + characterX, 27, camera.eye.z - 100, "Score: ");
-		drawScore(-62 + characterX, 27, camera.eye.z - 100);
+		if (hasEnded) {
+			drawString(characterX, 5, camera.eye.z - 50, "Game Over");
+			drawString(characterX, 0, camera.eye.z - 50, "Score: ");
+			drawScore(characterX + 3, 0, camera.eye.z - 50);
+		}
+		else {
+			drawString(-70 + characterX, 27, camera.eye.z - 100, "Score: ");
+			drawScore(-62 + characterX, 27, camera.eye.z - 100);
+		}
 	}
 
 	glutSwapBuffers();
@@ -820,7 +839,8 @@ void keysEvents(unsigned char key, int x, int y) {
 	case 'j': camera.rotateY(CAMERA_ROTATION_SPEED); break;
 	case 'l': camera.rotateY(-CAMERA_ROTATION_SPEED); break;
 	case ' ': isJumping = true;	break; // Make the character jump.
-	case 'm':pause = !pause; break;
+	case 'p': pause = !pause; break;
+	case 'n': if (hasEnded) startNewGame(); break;
 	case GLUT_KEY_ESCAPE: exit(EXIT_SUCCESS); break;
 	}
 
@@ -896,6 +916,7 @@ void handleCollisions()
 						(characterXMin + characterX <= (currentOffset.x + cactusXMaxOffset) && characterXMax + characterX >= (currentOffset.x + cactusXMaxOffset)))
 					{
 						if (jumpOffset <= cactusYOffset) {
+							hasEnded = true;
 							std::cout << "cactus collision coordinates on X and Y offsets\n";
 							std::cout << "cactus: " << currentOffset.x + cactusXMinOffset << " --> " << currentOffset.x + cactusXMaxOffset << " --> " << cactusYOffset << "\n";
 							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
@@ -911,6 +932,7 @@ void handleCollisions()
 						(characterXMin + characterX <= (currentOffset.x + coneXMaxOffset) && characterXMax + characterX >= (currentOffset.x + coneXMaxOffset)))
 					{
 						if (jumpOffset <= coneYOffset) {
+							hasEnded = true;
 							std::cout << "cone collision coordinates on X and Y offsets\n";
 							std::cout << "cone: " << currentOffset.x + coneXMinOffset << " --> " << currentOffset.x + coneXMaxOffset << " --> " << coneYOffset << "\n";
 							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
@@ -1001,7 +1023,7 @@ void characterJump(int val)
 
 void sceneAnim(int value)
 {
-	if (!pause)
+	if (!pause && !hasEnded)
 		sceneMotion += 1;
 
 	for (int i = 0; i < 10; i++)
@@ -1037,8 +1059,13 @@ void sceneAnim(int value)
 
 	if (isJumping)
 		characterJump(0);
+
 	if (isDesert && sceneMotion >= 550) {
 		switchLevel();
+	}
+
+	if (!isDesert && sceneMotion >= 550) {
+		hasEnded = true;
 	}
 
 	glutPostRedisplay();
@@ -1053,6 +1080,16 @@ void switchLevel() {
 
 	isDesert = false;
 
+	sceneMotion = 0;
+}
+
+// start new game
+void startNewGame() {
+	score = 0;
+	hasEnded = false;
+	initInteractables();
+	initializeGroundSegments();
+	isDesert = true;
 	sceneMotion = 0;
 }
 
