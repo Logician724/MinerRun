@@ -35,6 +35,9 @@ float jumpOffset = 0;
 bool isGoingUp = true;
 bool isJumping = false;
 
+// method signatures
+void switchLevel();
+
 void initializeGroundSegments()
 {
 	float beginning = 240.0;
@@ -1022,8 +1025,23 @@ void sceneAnim()
 
 	handleCollisions();
 
+	if (isDesert && sceneMotion >= 550) {
+		switchLevel();
+	}
+
 	glutPostRedisplay();
 }
+
+
+// switch level
+void switchLevel() {
+	initInteractables();
+
+	isDesert = false;
+
+	sceneMotion = 0;
+}
+
 
 //=======================================================================
 // Main Function
