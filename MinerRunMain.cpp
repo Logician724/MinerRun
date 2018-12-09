@@ -7,6 +7,11 @@
 #include <iostream>
 #include <vector>
 
+// Sound Library
+#include <include/irrKlang.h>
+#pragma comment(lib, "irrKlang.lib")
+irrklang::ISoundEngine* soundEgnine;
+
 #define GLUT_KEY_ESCAPE 27
 #define DEG2RAD(a) (a * 0.0174532925)
 
@@ -634,7 +639,7 @@ void keysEvents(unsigned char key, int x, int y) {
 	case 'k': camera.rotateX(-CAMERA_ROTATION_SPEED); break;
 	case 'j': camera.rotateY(CAMERA_ROTATION_SPEED); break;
 	case 'l': camera.rotateY(-CAMERA_ROTATION_SPEED); break;
-	case ' ': isJumping = true; break; // Make the character jump.
+	case ' ': isJumping = true;	break; // Make the character jump.
 	case GLUT_KEY_ESCAPE: exit(EXIT_SUCCESS); break;
 	}
 
@@ -750,6 +755,8 @@ void sceneAnim() {
 //=======================================================================
 void main(int argc, char** argv)
 {
+	//soundEgnine = irrklang::createIrrKlangDevice();
+
 	glutInit(&argc, argv);
 
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
