@@ -740,16 +740,10 @@ void keysEvents(unsigned char key, int x, int y)
 	glutPostRedisplay();
 }
 
-void playerMouseMovement(int x, int y)
-{
-
-	if (x < WIDTH / 2)
-	{
-		characterX = max(characterX - 0.5, -6);
-	}
-	else
-	{
-		characterX = min(characterX + 0.5, 6);
+void playerMouseMovement(int x, int y) {
+	std::cout << x << std::endl;
+	if (x < 1100 && x > 300) {
+		characterX = ((x - 300) / (800 / 12)) - 6;
 	}
 
 	if (!isThirdPersonPerspective)
@@ -967,5 +961,7 @@ void main(int argc, char **argv)
 	glEnable(GL_COLOR_MATERIAL);
 	glShadeModel(GL_SMOOTH);
 	glutIdleFunc(sceneAnim);
+
+	glutFullScreen();
 	glutMainLoop();
 }
