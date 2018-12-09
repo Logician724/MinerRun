@@ -1040,6 +1040,7 @@ void sceneAnim()
 // switch level
 void switchLevel() {
 	initInteractables();
+	initializeGroundSegments();
 
 	isDesert = false;
 
