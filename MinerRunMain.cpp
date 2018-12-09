@@ -148,7 +148,7 @@ Model_3DS goldArtifact;
 Model_3DS roadBarrier;
 
 // Textures
-GLTexture tex_desert, tex_street;
+GLTexture tex_desert, tex_street, tex_shirt, tex_hair, tex_pants, tex_sleeves;
 
 // road dimensions
 
@@ -430,9 +430,14 @@ void drawCharacter() {
 		// Head
 		glPushMatrix();
 		{
+			glEnable(GL_TEXTURE_GEN_S);
+			glEnable(GL_TEXTURE_GEN_T);
+			glBindTexture(GL_TEXTURE_2D, tex_hair.texture[0]);
 			glTranslatef(0, 1.75, 0);
 			glScalef(0.8, 0.8, 0.8);
 			glutSolidCube(1);
+			glDisable(GL_TEXTURE_GEN_S);
+			glDisable(GL_TEXTURE_GEN_T);
 		}
 		glPopMatrix();
 
@@ -470,16 +475,23 @@ void drawCharacter() {
 	// Body
 	glPushMatrix();
 	{
+		glEnable(GL_TEXTURE_GEN_S);
+		glEnable(GL_TEXTURE_GEN_T);
+		glBindTexture(GL_TEXTURE_2D, tex_shirt.texture[0]);
 		glTranslatef(0, 0.6, 0);
 		glScalef(0.6, 1.8, 0.6);
 		glutSolidCube(1);
-
+		glDisable(GL_TEXTURE_GEN_S);
+		glDisable(GL_TEXTURE_GEN_T);
 	}
 	glPopMatrix();
 
 	// Left Arm
 	glPushMatrix();
 	{
+		glEnable(GL_TEXTURE_GEN_S);
+		glEnable(GL_TEXTURE_GEN_T);
+		glBindTexture(GL_TEXTURE_2D, tex_sleeves.texture[0]);
 		glTranslatef(-0.4, 1.3, 0);
 		glRotatef(rotationOfArms, 1, 0, 0);
 		glTranslatef(0, -0.6, 0);
@@ -496,12 +508,17 @@ void drawCharacter() {
 		glTranslatef(0, -0.6, 0);
 		glScalef(0.2, 1, 0.2);
 		glutSolidCube(1);
+		glDisable(GL_TEXTURE_GEN_S);
+		glDisable(GL_TEXTURE_GEN_T);
 	}
 	glPopMatrix();
 
 	// Left Leg
 	glPushMatrix();
 	{
+		glEnable(GL_TEXTURE_GEN_S);
+		glEnable(GL_TEXTURE_GEN_T);
+		glBindTexture(GL_TEXTURE_2D, tex_pants.texture[0]);
 		glTranslatef(-0.2, -0.3, 0);
 		glRotatef(-rotationOfArms, 1, 0, 0);
 		glTranslatef(0, -0.7, 0);
@@ -518,6 +535,8 @@ void drawCharacter() {
 		glTranslatef(0, -0.7, 0);
 		glScalef(0.3, 1.4, 0.3);
 		glutSolidCube(1);
+		glDisable(GL_TEXTURE_GEN_S);
+		glDisable(GL_TEXTURE_GEN_T);
 	}
 	glPopMatrix();
 }
@@ -623,12 +642,9 @@ void keysEvents(unsigned char key, int x, int y) {
 }
 
 void playerMouseMovement(int x, int y) {
-
-	if (x < WIDTH / 2) {
-		characterX = max(characterX - 0.5, -6);
-	}
-	else {
-		characterX = min(characterX + 0.5, 6);
+	std::cout << x << std::endl;
+	if (x < 1100 && x > 300) {
+		characterX = ((x - 300) / (800 / 12)) - 6;
 	}
 
 	if (!isThirdPersonPerspective) {
@@ -665,6 +681,12 @@ void LoadAssets()
 	tex_desert.Load("Textures/desert.bmp");
 	tex_street.Load("Textures/asphalt_road.bmp");
 	loadBMP(&tex, "Textures/blu-sky-3.bmp", true);
+	
+	// Character Textures
+	tex_hair.Load("Textures/hair.bmp");
+	tex_sleeves.Load("Textures/sleeves.bmp");
+	tex_pants.Load("Textures/pants.bmp");
+	tex_shirt.Load("Textures/shirt.bmp");
 
 }
 //=======================================================================
@@ -763,5 +785,7 @@ void main(int argc, char** argv)
 	glEnable(GL_COLOR_MATERIAL);
 	glShadeModel(GL_SMOOTH);
 	glutIdleFunc(sceneAnim);
+
+	glutFullScreen();
 	glutMainLoop();
 }
