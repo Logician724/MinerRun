@@ -25,7 +25,7 @@ int HEIGHT = 720;
 //pause game flag
 bool pause = false;
 // game display flags and variables
-bool isDesert = false;
+bool isDesert = true;
 bool isThirdPersonPerspective = true;
 float groundSegmentsZTranslation[10];
 
@@ -325,6 +325,11 @@ void InitMaterial()
 // Interactable init function
 //=======================================================================
 void initInteractables() {
+
+	if (interactables.size() > 0) {
+		interactables.clear();
+	}
+
 	for (int i = 0; i < INTERACTABLES_SIZE; i++)
 	{
 
@@ -721,7 +726,8 @@ void myDisplay(void)
 	if (isThirdPersonPerspective) {
 		drawString(-67, 2.8, camera.eye.z - 100, "Score: ");
 		drawScore(-59, 2.8, camera.eye.z - 100);
-	} else {
+	}
+	else {
 		drawString(-70 + characterX, 27, camera.eye.z - 100, "Score: ");
 		drawScore(-62 + characterX, 27, camera.eye.z - 100);
 	}
@@ -775,9 +781,7 @@ void keysEvents(unsigned char key, int x, int y) {
 	case 'j': camera.rotateY(CAMERA_ROTATION_SPEED); break;
 	case 'l': camera.rotateY(-CAMERA_ROTATION_SPEED); break;
 	case ' ': isJumping = true;	break; // Make the character jump.
-	case 'm':
-		pause = !pause;
-		break;
+	case 'm':pause = !pause; break;
 	case GLUT_KEY_ESCAPE: exit(EXIT_SUCCESS); break;
 	}
 
