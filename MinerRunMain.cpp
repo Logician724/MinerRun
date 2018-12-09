@@ -18,7 +18,7 @@ int WIDTH = 1280;
 int HEIGHT = 720;
 
 // game display flags and variables
-bool isDesert = true;
+bool isDesert = false;
 bool pause = false;
 bool isThirdPersonPerspective = true;
 float groundSegmentsZTranslation[10];
@@ -41,7 +41,7 @@ void initializeGroundSegments()
 // Camera
 class Vector3f
 {
-  public:
+public:
 	float x, y, z;
 
 	Vector3f(float _x = 0.0f, float _y = 0.0f, float _z = 0.0f)
@@ -83,7 +83,7 @@ class Vector3f
 };
 class Camera
 {
-  public:
+public:
 	Vector3f eye, center, up;
 
 	Camera(float eyeX = 0.0f, float eyeY = 10.0f, float eyeZ = 260.0f, float centerX = 0.0f, float centerY = 0.0f, float centerZ = 238.0f, float upX = 0.0f, float upY = 1.0f, float upZ = 0.0f)
@@ -182,20 +182,21 @@ float characterXMax = 0.75;
 // interactable offsets for collisions
 
 // traffic cone
-float coneXMinOffset = -2.0f;
-float coneXMaxOffset = 2.0f;
-
+float coneXMinOffset = -0.5f;
+float coneXMaxOffset = 0.5f;
+float coneYOffset = 2.0f;
 // gold bag
-float bagXMinOffset = -1.0f;
-float bagXMaxOffset = 1.0f;
-
+float bagXMinOffset = -0.4f;
+float bagXMaxOffset = 0.4f;
+float bagYOffset = 0.8f;
 // cactus
 float cactusXMinOffset = -0.1f;
 float cactusXMaxOffset = 0.1f;
-
+float cactusYOffset = 2.0f;
 // artifact
 float artifactXMinOffset = -0.3f;
 float artifactXMaxOffset = 0.3f;
+float artifactYOffset = 0.6f;
 
 enum InteractableType
 {
@@ -254,19 +255,19 @@ void InitLightSource()
 	glEnable(GL_LIGHT0);
 
 	// Define Light source 0 ambient light
-	GLfloat ambient[] = {0.1f, 0.1f, 0.1, 1.0f};
+	GLfloat ambient[] = { 0.1f, 0.1f, 0.1, 1.0f };
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
 
 	// Define Light source 0 diffuse light
-	GLfloat diffuse[] = {0.5f, 0.5f, 0.5f, 1.0f};
+	GLfloat diffuse[] = { 0.5f, 0.5f, 0.5f, 1.0f };
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
 
 	// Define Light source 0 Specular light
-	GLfloat specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	GLfloat specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
 
 	// Finally, define light source 0 position in World Space
-	GLfloat light_position[] = {0.0f, 10.0f, 0.0f, 1.0f};
+	GLfloat light_position[] = { 0.0f, 10.0f, 0.0f, 1.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 }
 
@@ -303,25 +304,19 @@ void InitMaterial()
 
 	// Set Material's Specular Color
 	// Will be applied to all objects
-	GLfloat specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	GLfloat specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
 
 	// Set Material's Shine value (0->128)
-	GLfloat shininess[] = {96.0f};
+	GLfloat shininess[] = { 96.0f };
 	glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
 }
 
-//=======================================================================
-// OpengGL Configuration Function
-//=======================================================================
-void myInit(void)
-{
-	glClearColor(0.0, 0.0, 0.0, 0.0);
 
-	InitMaterial();
-
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_NORMALIZE);
+//=======================================================================
+// Interactable init function
+//=======================================================================
+void initInteractables() {
 	for (int i = 0; i < INTERACTABLES_SIZE; i++)
 	{
 
@@ -338,8 +333,22 @@ void myInit(void)
 		{
 			currentType = COLLECTIBLE;
 		}
-		interactables.push_back({currentType, offset, false});
+		interactables.push_back({ currentType, offset, false });
 	}
+}
+
+//=======================================================================
+// OpengGL Configuration Function
+//=======================================================================
+
+
+void myInit(void)
+{
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	InitMaterial();
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_NORMALIZE);
+	initInteractables();
 }
 
 //=======================================================================
@@ -449,7 +458,7 @@ void drawInteractables()
 		{
 			glPushMatrix();
 			glTranslated(currentOffset.x, currentOffset.y, currentOffset.z);
-			if (currentInteractable.type == COLLECTIBLE)
+			if (currentInteractable.type == COLLECTIBLE && !currentInteractable.isHit)
 			{
 				if (isDesert)
 				{
@@ -619,8 +628,8 @@ void myDisplay(void)
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	GLfloat lightIntensity[] = {0.7, 0.7, 0.7, 1.0f};
-	GLfloat lightPosition[] = {0.0f, 100.0f, 0.0f, 0.0f};
+	GLfloat lightIntensity[] = { 0.7, 0.7, 0.7, 1.0f };
+	GLfloat lightPosition[] = { 0.0f, 100.0f, 0.0f, 0.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, lightIntensity);
 
@@ -798,26 +807,34 @@ void handleCollisions()
 			if (currentInteractable.type == OBSTACLE)
 			{ // cactus
 				if (isDesert)
-				{		 //cactus
+				{//cactus
 					if ( // if the player cut the x line of this object
-						(characterXMin <= (currentOffset.x + cactusXMinOffset) && characterXMax >= (currentOffset.x + cactusXMinOffset)) ||
-						(characterXMin <= (currentOffset.x + cactusXMaxOffset) && characterXMax >= (currentOffset.x + cactusXMaxOffset)))
+						(characterXMin + characterX <= (currentOffset.x + cactusXMinOffset) && characterXMax + characterX >= (currentOffset.x + cactusXMinOffset)) ||
+						(characterXMin + characterX <= (currentOffset.x + cactusXMaxOffset) && characterXMax + characterX >= (currentOffset.x + cactusXMaxOffset)))
 					{
-						std::cout << "cactus collision coordinates on X\n";
-						std::cout << "cactus: " << currentOffset.x + cactusXMinOffset << " --> " << currentOffset.x + cactusXMaxOffset << "\n";
-						std::cout << "character: " << characterXMin << " --> " << characterXMax << "\n";
-						interactables[i].isHit = true;
-						std::cout << "I got hit by cactus\n";
+						if (jumpOffset <= cactusYOffset) {
+							std::cout << "cactus collision coordinates on X\n";
+							std::cout << "cactus: " << currentOffset.x + cactusXMinOffset << " --> " << currentOffset.x + cactusXMaxOffset << " --> " << cactusYOffset << "\n";
+							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
+							interactables[i].isHit = true;
+							std::cout << "I got hit by cactus\n";
+						}
 					}
 				}
 				else
 				{ // cone
 					if (
-						(characterXMin <= (currentOffset.x + cactusXMinOffset) && characterXMax >= (currentOffset.x + cactusXMinOffset)) ||
-						(characterXMin <= (currentOffset.x + cactusXMaxOffset) && characterXMax >= (currentOffset.x + cactusXMaxOffset)))
+						(characterXMin + characterX <= (currentOffset.x + coneXMinOffset) && characterXMax + characterX >= (currentOffset.x + coneXMinOffset)) ||
+						(characterXMin + characterX <= (currentOffset.x + coneXMaxOffset) && characterXMax + characterX >= (currentOffset.x + coneXMaxOffset)))
 					{
-						interactables[i].isHit = true;
-						std::cout << "I got hit by cone\n";
+						if (jumpOffset <= coneYOffset) {
+							std::cout << "cone collision coordinates on X\n";
+							std::cout << "cone: " << currentOffset.x + coneXMinOffset << " --> " << currentOffset.x + coneXMaxOffset << " --> " << coneYOffset << "\n";
+							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
+							interactables[i].isHit = true;
+							std::cout << "I got hit by cone\n";
+						}
+
 					}
 				}
 			}
@@ -827,21 +844,32 @@ void handleCollisions()
 				if (isDesert)
 				{		 //artifact
 					if ( // if the player cut the x line of this obstacle
-						(characterXMin <= (currentOffset.x + artifactXMinOffset) && characterXMax >= (currentOffset.x + artifactXMinOffset)) ||
-						(characterXMin <= (currentOffset.x + artifactXMaxOffset) && characterXMax >= (currentOffset.x + artifactXMaxOffset)))
+						(characterXMin + characterX <= (currentOffset.x + artifactXMinOffset) && characterXMax + characterX >= (currentOffset.x + artifactXMinOffset)) ||
+						(characterXMin + characterX <= (currentOffset.x + artifactXMaxOffset) && characterXMax + characterX >= (currentOffset.x + artifactXMaxOffset)))
 					{
-						interactables[i].isHit = true;
-						std::cout << "I got an artifact, I am rich\n";
+						if (jumpOffset <= artifactYOffset) {
+							std::cout << "artifact collision coordinates on X\n";
+							std::cout << "artifact: " << currentOffset.x + artifactXMinOffset << " --> " << currentOffset.x + artifactXMaxOffset << " --> " << artifactYOffset << "\n";
+							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
+							interactables[i].isHit = true;
+							std::cout << "I got an artifact, I am rich\n";
+						}
+
 					}
 				}
 				else
 				{
 					if ( //gold bag
-						(characterXMin <= (currentOffset.x + bagXMinOffset) && characterXMax >= (currentOffset.x + bagXMinOffset)) ||
-						(characterXMin <= (currentOffset.x + bagXMaxOffset) && characterXMax >= (currentOffset.x + bagXMaxOffset)))
+						(characterXMin + characterX <= (currentOffset.x + bagXMinOffset) && characterXMax + characterX >= (currentOffset.x + bagXMinOffset)) ||
+						(characterXMin + characterX <= (currentOffset.x + bagXMaxOffset) && characterXMax + characterX >= (currentOffset.x + bagXMaxOffset)))
 					{
-						interactables[i].isHit = true;
-						std::cout << "I got a gold bag, goodbye GUC.\n";
+						if (jumpOffset <= bagYOffset) {
+							std::cout << "bag collision coordinates on X\n";
+							std::cout << "bag: " << currentOffset.x + bagXMinOffset << " --> " << currentOffset.x + bagXMaxOffset << " --> " << bagYOffset << "\n";
+							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
+							interactables[i].isHit = true;
+							std::cout << "I got a gold bag, goodbye GUC.\n";
+						}
 					}
 				}
 			}
@@ -861,19 +889,19 @@ void characterJump(int val)
 
 	if (isGoingUp)
 	{
-		jumpOffset += 0.5;
+		jumpOffset += 0.8;
 		if (!isThirdPersonPerspective)
 		{
-			camera.eye.y += 0.5;
+			camera.eye.y += 0.8;
 			camera.look();
 		}
 	}
 	else
 	{
-		jumpOffset -= 0.5;
+		jumpOffset -= 0.8;
 		if (!isThirdPersonPerspective)
 		{
-			camera.eye.y -= 0.5;
+			camera.eye.y -= 0.8;
 			camera.look();
 		}
 	}
@@ -882,6 +910,7 @@ void characterJump(int val)
 	{
 		isGoingUp = true;
 		isJumping = false;
+		jumpOffset = 0;
 	}
 }
 
@@ -921,9 +950,10 @@ void sceneAnim()
 		}
 	}
 
-	handleCollisions();
 	if (isJumping)
 		characterJump(0);
+
+	handleCollisions();
 
 	glutPostRedisplay();
 }
@@ -961,7 +991,5 @@ void main(int argc, char **argv)
 	glEnable(GL_COLOR_MATERIAL);
 	glShadeModel(GL_SMOOTH);
 	glutIdleFunc(sceneAnim);
-
-	glutFullScreen();
 	glutMainLoop();
 }
