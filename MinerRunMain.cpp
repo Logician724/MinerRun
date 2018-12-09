@@ -999,7 +999,7 @@ void characterJump(int val)
 	}
 }
 
-void sceneAnim()
+void sceneAnim(int value)
 {
 	if (!pause)
 		sceneMotion += 1;
@@ -1037,14 +1037,12 @@ void sceneAnim()
 
 	if (isJumping)
 		characterJump(0);
-
-	handleCollisions();
-
 	if (isDesert && sceneMotion >= 550) {
 		switchLevel();
 	}
 
 	glutPostRedisplay();
+	glutTimerFunc(34, sceneAnim, 0);
 }
 
 
@@ -1094,6 +1092,7 @@ void main(int argc, char **argv)
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_COLOR_MATERIAL);
 	glShadeModel(GL_SMOOTH);
-	glutIdleFunc(sceneAnim);
+	glutIdleFunc(handleCollisions);
+	glutTimerFunc(33, sceneAnim,0);
 	glutMainLoop();
 }
