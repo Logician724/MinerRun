@@ -41,6 +41,8 @@ float jumpOffset = 0;
 bool isGoingUp = true;
 bool isJumping = false;
 
+int rockRotationAngle = 0;
+
 // method signatures
 void switchLevel();
 void startNewGame();
@@ -103,7 +105,7 @@ class Camera
 public:
 	Vector3f eye, center, up;
 
-	Camera(float eyeX = 0.0f, float eyeY = 10.0f, float eyeZ = 260.0f, float centerX = 0.0f, float centerY = 0.0f, float centerZ = 238.0f, float upX = 0.0f, float upY = 1.0f, float upZ = 0.0f)
+	Camera(float eyeX = 0.0f, float eyeY = 12.0f, float eyeZ = 260.0f, float centerX = 0.0f, float centerY = 0.0f, float centerZ = 240.0f, float upX = 0.0f, float upY = 1.0f, float upZ = 0.0f)
 	{
 		eye = Vector3f(eyeX, eyeY, eyeZ);
 		center = Vector3f(centerX, centerY, centerZ);
@@ -180,6 +182,7 @@ Model_3DS goldBag;
 Model_3DS trafficCone;
 Model_3DS goldArtifact;
 Model_3DS roadBarrier;
+Model_3DS rock;
 
 // Textures
 GLTexture tex_desert, tex_street, tex_shirt, tex_hair, tex_pants, tex_sleeves;
@@ -251,11 +254,11 @@ void switchPerspective()
 		// transition to 3rd person
 		isThirdPersonPerspective = true;
 		camera.eye.x = 0;
-		camera.eye.y = 10;
+		camera.eye.y = 12;
 		camera.eye.z = 260;
 		camera.center.x = 0;
 		camera.center.y = 0;
-		camera.center.z = 238;
+		camera.center.z = 240;
 	}
 
 	camera.look();
@@ -796,6 +799,13 @@ void myDisplay(void)
 	glPopMatrix();
 
 	glPushMatrix();
+	glTranslatef(0, 2, 254);
+	glScaled(5, 2, 2);
+	glRotated(-rockRotationAngle, 1, 0, 0);
+	rock.Draw();
+	glPopMatrix();
+
+	glPushMatrix();
 	glTranslatef(0, 0, sceneMotion);
 	// Draw Ground
 	drawGroundSegment();
@@ -934,6 +944,7 @@ void LoadAssets()
 	trafficCone.Load("models/traffic_cone/cone1_obj.3ds");
 	goldArtifact.Load("models/gold_artifact/13455_Gold_Doubloon_v1_l1.3ds");
 	roadBarrier.Load("models/road_barrier/road_barrier.3ds");
+	rock.Load("models/rock/stone.3ds");
 
 	// Loading texture files
 	tex_desert.Load("Textures/desert.bmp");
@@ -1081,6 +1092,8 @@ void sceneAnim(int value)
 {
 	if (!pause && !hasEnded)
 		sceneMotion += 1;
+
+	rockRotationAngle = (rockRotationAngle + 5) % 360;
 
 	for (int i = 0; i < 10; i++)
 	{
