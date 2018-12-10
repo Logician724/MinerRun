@@ -838,7 +838,7 @@ void keysEvents(unsigned char key, int x, int y) {
 	case 'k': camera.rotateX(-CAMERA_ROTATION_SPEED); break;
 	case 'j': camera.rotateY(CAMERA_ROTATION_SPEED); break;
 	case 'l': camera.rotateY(-CAMERA_ROTATION_SPEED); break;
-	case ' ': isJumping = true;	break; // Make the character jump.
+	case ' ': soundEgnine->play2D("media/jump.wav"); isJumping = true; break; // Make the character jump.
 	case 'p': pause = !pause; break;
 	case 'n': if (hasEnded) startNewGame(); break;
 	case GLUT_KEY_ESCAPE: exit(EXIT_SUCCESS); break;
@@ -916,6 +916,7 @@ void handleCollisions()
 						(characterXMin + characterX <= (currentOffset.x + cactusXMaxOffset) && characterXMax + characterX >= (currentOffset.x + cactusXMaxOffset)))
 					{
 						if (jumpOffset <= cactusYOffset) {
+							soundEgnine->play2D("media/lose.wav");
 							hasEnded = true;
 							std::cout << "cactus collision coordinates on X and Y offsets\n";
 							std::cout << "cactus: " << currentOffset.x + cactusXMinOffset << " --> " << currentOffset.x + cactusXMaxOffset << " --> " << cactusYOffset << "\n";
@@ -932,6 +933,7 @@ void handleCollisions()
 						(characterXMin + characterX <= (currentOffset.x + coneXMaxOffset) && characterXMax + characterX >= (currentOffset.x + coneXMaxOffset)))
 					{
 						if (jumpOffset <= coneYOffset) {
+							soundEgnine->play2D("media/lose.wav");
 							hasEnded = true;
 							std::cout << "cone collision coordinates on X and Y offsets\n";
 							std::cout << "cone: " << currentOffset.x + coneXMinOffset << " --> " << currentOffset.x + coneXMaxOffset << " --> " << coneYOffset << "\n";
@@ -953,6 +955,7 @@ void handleCollisions()
 						(characterXMin + characterX <= (currentOffset.x + artifactXMaxOffset) && characterXMax + characterX >= (currentOffset.x + artifactXMaxOffset)))
 					{
 						if (jumpOffset <= artifactYOffset) {
+							soundEgnine->play2D("media/score.wav");
 							std::cout << "artifact collision coordinates on X and Y offsets\n";
 							std::cout << "artifact: " << currentOffset.x + artifactXMinOffset << " --> " << currentOffset.x + artifactXMaxOffset << " --> " << artifactYOffset << "\n";
 							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
@@ -970,6 +973,7 @@ void handleCollisions()
 						(characterXMin + characterX <= (currentOffset.x + bagXMaxOffset) && characterXMax + characterX >= (currentOffset.x + bagXMaxOffset)))
 					{
 						if (jumpOffset <= bagYOffset) {
+							soundEgnine->play2D("media/score.wav");
 							std::cout << "bag collision coordinates on X and Y offsets\n";
 							std::cout << "bag: " << currentOffset.x + bagXMinOffset << " --> " << currentOffset.x + bagXMaxOffset << " --> " << bagYOffset << "\n";
 							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
@@ -1075,6 +1079,7 @@ void sceneAnim(int value)
 
 // switch level
 void switchLevel() {
+	soundEgnine->play2D("media/win.wav");
 	initInteractables();
 	initializeGroundSegments();
 
@@ -1099,7 +1104,7 @@ void startNewGame() {
 //=======================================================================
 void main(int argc, char **argv)
 {
-	//soundEgnine = irrklang::createIrrKlangDevice();
+	soundEgnine = irrklang::createIrrKlangDevice();
 
 	glutInit(&argc, argv);
 
