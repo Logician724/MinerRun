@@ -13,6 +13,8 @@
 #pragma comment(lib, "irrKlang.lib")
 irrklang::ISoundEngine* soundEgnine;
 
+#define PI 3.14159265
+
 #define GLUT_KEY_ESCAPE 27
 #define DEG2RAD(a) (a * 0.0174532925)
 
@@ -288,25 +290,75 @@ void InitLightSource()
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 }
 
-void testLight() {
+float lightSourceTheta = 0;
+void drawSunLight(float x, float y) {
+	glEnable(GL_LIGHT0);
 
+	glPushMatrix();
+	{
+		glLoadIdentity();
+
+		GLfloat ambient[] = { 0.98f, 0.84f, 0.65f, 1.0f };
+		glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+
+		// Define Light source 0 diffuse light
+		GLfloat diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+
+		// Define Light source 0 Specular light
+		GLfloat specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+		glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
+
+		GLfloat light_position[] = { x, y, 270, 1.0f };
+		glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+	}
+	glPopMatrix();
+
+	// Enable Lighting for this OpenGL Program
+	glEnable(GL_LIGHTING);
+
+}
+void drawMoonLight(float x, float y) {
 	glEnable(GL_LIGHT1);
 
 	glPushMatrix();
 	{
 		glLoadIdentity();
-		GLfloat diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		GLfloat ambient[] = { 0.05f, 0.05f, 0.05f, 1.0f };
+		glLightfv(GL_LIGHT1, GL_AMBIENT, ambient);
+
+		// Define Light source 0 diffuse light
+		GLfloat diffuse[] = { 1.5f, 1.5f, 1.5f, 1.0f };
 		glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse);
 
-		glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 10.0);
+		// Define Light source 0 Specular light
+		GLfloat specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+		glLightfv(GL_LIGHT1, GL_SPECULAR, specular);
 
-		GLfloat spot_direction[] = { 1, 1, 0 };
-		glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
-
-		GLfloat light_position[] = { 0, 1, 230, 0.0f };
+		GLfloat light_position[] = { x, y, 270, 1.0f };
 		glLightfv(GL_LIGHT1, GL_POSITION, light_position);
 	}
 	glPopMatrix();
+
+	// Enable Lighting for this OpenGL Program
+	glEnable(GL_LIGHTING);
+
+}
+void testLight() {
+	float sunX = 100 * cos(lightSourceTheta * PI / 180);
+	float sunY = 100 * sin(lightSourceTheta * PI / 180);
+	float moonX = 100 * cos((lightSourceTheta + 180) * PI / 180);
+	float moonY = 100 * sin((lightSourceTheta + 180) * PI / 180);
+	lightSourceTheta += 1;
+
+	drawSunLight(sunX, sunY);
+	drawMoonLight(moonX, moonY);
+
+	if(((int) lightSourceTheta) % 360 > 180)
+		glDisable(GL_LIGHT0);
+	else
+		glDisable(GL_LIGHT1);
 }
 
 //=======================================================================
@@ -730,8 +782,8 @@ void myDisplay(void)
 {
 	InitCamera();
 
-	InitLightSource();
-	//testLight();
+	//InitLightSource();
+	testLight();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -1136,5 +1188,7 @@ void main(int argc, char **argv)
 	glShadeModel(GL_SMOOTH);
 	glutIdleFunc(handleCollisions);
 	glutTimerFunc(33, sceneAnim,0);
+
+	glutFullScreen();
 	glutMainLoop();
 }
