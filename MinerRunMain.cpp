@@ -32,7 +32,7 @@ bool pause = false;
 bool hasEnded = false;
 
 // game display flags and variables
-bool isDesert = true;
+bool isDesert = false;
 bool isThirdPersonPerspective = true;
 float groundSegmentsZTranslation[10];
 
@@ -183,6 +183,7 @@ Model_3DS trafficCone;
 Model_3DS goldArtifact;
 Model_3DS roadBarrier;
 Model_3DS rock;
+Model_3DS sign;
 
 // Textures
 GLTexture tex_desert, tex_street, tex_shirt, tex_hair, tex_pants, tex_sleeves;
@@ -776,6 +777,16 @@ void drawChest() {
 	glRotatef(90, 0, 1, 0);
 	goldChest.Draw();
 	glPopMatrix();
+
+	if (!isDesert) {
+		glPushMatrix();
+		glTranslatef(5, 0, -305);
+		glRotatef(-90, 0, 0, 1);
+		glRotatef(90, 0, 1, 0);
+		glScaled(0.005, 0.005, 0.005);
+		sign.Draw();
+		glPopMatrix();
+	}
 }
 
 //=======================================================================
@@ -947,6 +958,7 @@ void LoadAssets()
 	goldArtifact.Load("models/gold_artifact/13455_Gold_Doubloon_v1_l1.3ds");
 	roadBarrier.Load("models/road_barrier/road_barrier.3ds");
 	rock.Load("models/rock/stone.3ds");
+	sign.Load("models/sign/sign.3ds");
 
 	// Loading texture files
 	tex_desert.Load("Textures/desert.bmp");
