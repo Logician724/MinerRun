@@ -790,6 +790,31 @@ void myDisplay(void)
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+	if (isThirdPersonPerspective) {
+		if (hasEnded) {
+			drawString(0, 2.8, camera.eye.z - 50, "Game Over");
+			drawString(0, 0, camera.eye.z - 50, "Score: ");
+			drawScore(3, 0, camera.eye.z - 50);
+		}
+		else {
+			drawString(-67, 2.8, camera.eye.z - 100, "Score: ");
+			drawScore(-59, 2.8, camera.eye.z - 100);
+		}
+	}
+	else {
+		if (hasEnded) {
+			drawString(characterX, 5, camera.eye.z - 50, "Game Over");
+			drawString(characterX, 0, camera.eye.z - 50, "Score: ");
+			drawScore(characterX + 3, 0, camera.eye.z - 50);
+		}
+		else {
+			drawString(-70 + characterX, 27, camera.eye.z - 100, "Score: ");
+			drawScore(-62 + characterX, 27, camera.eye.z - 100);
+		}
+	}
+
+
 	glPushMatrix();
 	{
 		glTranslatef(characterX, 2 + jumpOffset, 250);
@@ -828,29 +853,6 @@ void myDisplay(void)
 	gluSphere(qobj, 300, 100, 100);
 	gluDeleteQuadric(qobj);
 	glPopMatrix();
-
-	if (isThirdPersonPerspective) {
-		if (hasEnded) {
-			drawString(0, 2.8, camera.eye.z - 50, "Game Over");
-			drawString(0, 0, camera.eye.z - 50, "Score: ");
-			drawScore(3, 0, camera.eye.z - 50);
-		}
-		else {
-			drawString(-67, 2.8, camera.eye.z - 100, "Score: ");
-			drawScore(-59, 2.8, camera.eye.z - 100);
-		}
-	}
-	else {
-		if (hasEnded) {
-			drawString(characterX, 5, camera.eye.z - 50, "Game Over");
-			drawString(characterX, 0, camera.eye.z - 50, "Score: ");
-			drawScore(characterX + 3, 0, camera.eye.z - 50);
-		}
-		else {
-			drawString(-70 + characterX, 27, camera.eye.z - 100, "Score: ");
-			drawScore(-62 + characterX, 27, camera.eye.z - 100);
-		}
-	}
 
 	glutSwapBuffers();
 }
