@@ -457,7 +457,7 @@ void myInit(void)
 	glEnable(GL_NORMALIZE);
 	initInteractables();
 	irrklang::ISound* backgroundMusic = soundEgnine->play3D("media/background.mp3", irrklang::vec3df(0, 0, 0), true, false, true);
-	backgroundMusic->setVolume(0.6f);
+	backgroundMusic->setVolume(0.1f);
 }
 
 //=======================================================================
@@ -920,7 +920,7 @@ void keysEvents(unsigned char key, int x, int y) {
 		soundEgnine->play2D("media/jump.wav"); isJumping = true;  // Make the character jump.
 	}
 			  break;
-	case 'n': if (hasEnded) startNewGame(); break;
+	case 'n': if (hasEnded) { startNewGame(); } break;
 	case GLUT_KEY_ESCAPE: exit(EXIT_SUCCESS); break;
 	}
 
@@ -955,7 +955,6 @@ void characterMouseJump(int button, int state, int x, int y) {
 void LoadAssets()
 {
 	// Loading Model files
-	metalFence.Load("models/metal_fence/fance.3ds");
 	woodenFence.Load("models/wooden_fence/13076_Gothic_Wood_Fence_Panel_v2_l3.3ds");
 	cactus.Load("models/cactus/10436_Cactus_v1_max2010_it2.3ds");
 	goldChest.Load("models/gold_chest/ChestCartoon.3ds");
