@@ -1011,11 +1011,7 @@ void handleCollisions()
 						if (jumpOffset <= cactusYOffset) {
 							soundEgnine->play2D("media/lose.wav");
 							hasEnded = true;
-							std::cout << "cactus collision coordinates on X and Y offsets\n";
-							std::cout << "cactus: " << currentOffset.x + cactusXMinOffset << " --> " << currentOffset.x + cactusXMaxOffset << " --> " << cactusYOffset << "\n";
-							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
 							interactables[i].isHit = true;
-							std::cout << "I got hit by cactus\n";
 						}
 					}
 				}
@@ -1028,11 +1024,7 @@ void handleCollisions()
 						if (jumpOffset <= coneYOffset) {
 							soundEgnine->play2D("media/lose.wav");
 							hasEnded = true;
-							std::cout << "cone collision coordinates on X and Y offsets\n";
-							std::cout << "cone: " << currentOffset.x + coneXMinOffset << " --> " << currentOffset.x + coneXMaxOffset << " --> " << coneYOffset << "\n";
-							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
 							interactables[i].isHit = true;
-							std::cout << "I got hit by cone\n";
 						}
 
 					}
@@ -1049,12 +1041,8 @@ void handleCollisions()
 					{
 						if (jumpOffset <= artifactYOffset) {
 							soundEgnine->play2D("media/score.wav");
-							std::cout << "artifact collision coordinates on X and Y offsets\n";
-							std::cout << "artifact: " << currentOffset.x + artifactXMinOffset << " --> " << currentOffset.x + artifactXMaxOffset << " --> " << artifactYOffset << "\n";
-							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
 							score += 10;
 							interactables[i].isHit = true;
-							std::cout << "I got an artifact, I am rich\n";
 						}
 
 					}
@@ -1067,12 +1055,8 @@ void handleCollisions()
 					{
 						if (jumpOffset <= bagYOffset) {
 							soundEgnine->play2D("media/score.wav");
-							std::cout << "bag collision coordinates on X and Y offsets\n";
-							std::cout << "bag: " << currentOffset.x + bagXMinOffset << " --> " << currentOffset.x + bagXMaxOffset << " --> " << bagYOffset << "\n";
-							std::cout << "character: " << characterXMin + characterX << " --> " << characterXMax + characterX << " --> " << jumpOffset << "\n";
 							score += 10;
 							interactables[i].isHit = true;
-							std::cout << "I got a gold bag, goodbye GUC.\n";
 						}
 					}
 				}
