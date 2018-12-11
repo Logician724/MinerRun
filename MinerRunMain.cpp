@@ -811,9 +811,9 @@ void myDisplay(void)
 
 	if (isThirdPersonPerspective) {
 		if (hasEnded) {
-			drawString(-2, 2.8, camera.eye.z - 30, "Game Over");
-			drawString(-2, 0, camera.eye.z - 30, "Score: ");
-			drawScore(1, 0, camera.eye.z - 30);
+			drawString(-40, 0.2, camera.eye.z - 60, "Game Over");
+			drawString(-40, -1.2, camera.eye.z - 60, "Score: ");
+			drawScore(-32, -2.4, camera.eye.z - 60);
 		}
 		else {
 			drawString(-40, 0.2, camera.eye.z - 60, "Score: ");
@@ -822,9 +822,9 @@ void myDisplay(void)
 	}
 	else {
 		if (hasEnded) {
-			drawString(characterX, 5, camera.eye.z - 50, "Game Over");
-			drawString(characterX, 0, camera.eye.z - 50, "Score: ");
-			drawScore(characterX + 3, 0, camera.eye.z - 50);
+			drawString(-70 + characterX, 27, camera.eye.z - 100, "Game Over");
+			drawString(-70 + characterX, 25, camera.eye.z - 100, "Score: ");
+			drawScore(-62 + characterX, 23, camera.eye.z - 100);
 		}
 		else {
 			drawString(-70 + characterX, 27, camera.eye.z - 100, "Score: ");
