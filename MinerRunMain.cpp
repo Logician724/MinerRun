@@ -955,6 +955,7 @@ void playerMouseMovement(int x, int y) {
 
 void characterMouseJump(int button, int state, int x, int y) {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+		soundEgnine->play2D("media/jump.wav");
 		isJumping = true;
 	}
 }
