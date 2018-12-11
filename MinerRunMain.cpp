@@ -1105,6 +1105,7 @@ void characterJump(int val)
 		isGoingUp = true;
 		isJumping = false;
 		jumpOffset = 0;
+		camera.eye.y = 4;
 	}
 }
 
