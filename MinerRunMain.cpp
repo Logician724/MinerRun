@@ -25,8 +25,6 @@ irrklang::ISoundEngine* soundEgnine;
 int WIDTH = 1280;
 int HEIGHT = 720;
 
-//pause game flag
-bool pause = false;
 
 // game end flag
 bool hasEnded = false;
@@ -920,7 +918,6 @@ void keysEvents(unsigned char key, int x, int y) {
 		soundEgnine->play2D("media/jump.wav"); isJumping = true;  // Make the character jump.
 	}
 			  break;
-	// case 'p': pause = !pause; break;
 	case 'n': if (hasEnded) startNewGame(); break;
 	case GLUT_KEY_ESCAPE: exit(EXIT_SUCCESS); break;
 	}
@@ -1126,7 +1123,7 @@ void swingArms()
 
 void sceneAnim(int value)
 {
-	if (!pause && !hasEnded)
+	if (!hasEnded)
 		sceneMotion += 1;
 
 	for (int i = 0; i < 10; i++)
