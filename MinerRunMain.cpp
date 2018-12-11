@@ -45,6 +45,7 @@ int rockRotationAngle = 0;
 
 // method signatures
 void switchLevel();
+void swingArms();
 void startNewGame();
 
 void initializeGroundSegments()
@@ -330,7 +331,7 @@ void drawMoonLight(float x, float y) {
 
 		float timeOfDay = ((int)lightSourceTheta % 180) / 190.0;
 
-		GLfloat ambient[] = { 0.05f + timeOfDay/2, 0.05f + timeOfDay/2, 0.05f + timeOfDay/2, 1.0f };
+		GLfloat ambient[] = { 0.05f + timeOfDay / 2, 0.05f + timeOfDay / 2, 0.05f + timeOfDay / 2, 1.0f };
 		glLightfv(GL_LIGHT1, GL_AMBIENT, ambient);
 
 		// Define Light source 0 diffuse light
@@ -346,7 +347,7 @@ void drawMoonLight(float x, float y) {
 	}
 	glPopMatrix();
 
-	
+
 
 }
 void SunMoonLight() {
@@ -810,9 +811,9 @@ void myDisplay(void)
 
 	if (isThirdPersonPerspective) {
 		if (hasEnded) {
-			drawString(-2, 2.8, camera.eye.z - 50, "Game Over");
-			drawString(-2, 0, camera.eye.z - 50, "Score: ");
-			drawScore(1, 0, camera.eye.z - 50);
+			drawString(-2, 2.8, camera.eye.z - 30, "Game Over");
+			drawString(-2, 0, camera.eye.z - 30, "Score: ");
+			drawScore(1, 0, camera.eye.z - 30);
 		}
 		else {
 			drawString(-40, 0.2, camera.eye.z - 60, "Score: ");
@@ -879,31 +880,33 @@ void myDisplay(void)
 //=======================================================================
 void specialKeysEvents(int key, int x, int y)
 {
-	switch (key)
-	{
-	case GLUT_KEY_LEFT:
-		if (characterX > -6)
+	if (!hasEnded) {
+		switch (key)
 		{
-			characterX -= 0.5;
-		}
-		break;
+		case GLUT_KEY_LEFT:
+			if (characterX > -6)
+			{
+				characterX -= 0.5;
+			}
+			break;
 
-	case GLUT_KEY_RIGHT:
-		if (characterX < 6)
+		case GLUT_KEY_RIGHT:
+			if (characterX < 6)
+			{
+				characterX += 0.5;
+			}
+			break;
+		}
+
+		if (!isThirdPersonPerspective)
 		{
-			characterX += 0.5;
+			camera.eye.x = characterX;
+			camera.center.x = characterX;
+			camera.look();
 		}
-		break;
-	}
 
-	if (!isThirdPersonPerspective)
-	{
-		camera.eye.x = characterX;
-		camera.center.x = characterX;
-		camera.look();
+		glutPostRedisplay();
 	}
-
-	glutPostRedisplay();
 }
 
 void keysEvents(unsigned char key, int x, int y) {
@@ -919,7 +922,10 @@ void keysEvents(unsigned char key, int x, int y) {
 	case 'k': camera.rotateX(-CAMERA_ROTATION_SPEED); break;
 	case 'j': camera.rotateY(CAMERA_ROTATION_SPEED); break;
 	case 'l': camera.rotateY(-CAMERA_ROTATION_SPEED); break;
-	case ' ': soundEgnine->play2D("media/jump.wav"); isJumping = true; break; // Make the character jump.
+	case ' ': if (!hasEnded) {
+		soundEgnine->play2D("media/jump.wav"); isJumping = true;  // Make the character jump.
+	}
+			  break;
 	case 'p': pause = !pause; break;
 	case 'n': if (hasEnded) startNewGame(); break;
 	case GLUT_KEY_ESCAPE: exit(EXIT_SUCCESS); break;
@@ -1105,25 +1111,12 @@ void characterJump(int val)
 		isGoingUp = true;
 		isJumping = false;
 		jumpOffset = 0;
-		camera.eye.y = 4;
+		camera.eye.y = 12;
 	}
 }
 
-void sceneAnim(int value)
+void swingArms()
 {
-	if (!pause && !hasEnded)
-		sceneMotion += 1;
-
-	rockRotationAngle = (rockRotationAngle + 5) % 360;
-
-	for (int i = 0; i < 10; i++)
-	{
-		if (sceneMotion + groundSegmentsZTranslation[i] >= 270)
-		{
-			groundSegmentsZTranslation[i] -= 300;
-		}
-	}
-
 	if (!swing)
 	{
 		if (rotationOfArms > 30.0)
@@ -1145,6 +1138,26 @@ void sceneAnim(int value)
 		{
 			rotationOfArms -= 25;
 		}
+	}
+}
+
+void sceneAnim(int value)
+{
+	if (!pause && !hasEnded)
+		sceneMotion += 1;
+
+	for (int i = 0; i < 10; i++)
+	{
+		if (sceneMotion + groundSegmentsZTranslation[i] >= 270)
+		{
+			groundSegmentsZTranslation[i] -= 300;
+		}
+	}
+
+	if (!hasEnded) {
+		rockRotationAngle = (rockRotationAngle + 5) % 360;
+
+		swingArms();
 	}
 
 	if (isJumping)
@@ -1221,7 +1234,7 @@ void main(int argc, char **argv)
 	glEnable(GL_COLOR_MATERIAL);
 	glShadeModel(GL_SMOOTH);
 	glutIdleFunc(handleCollisions);
-	glutTimerFunc(33, sceneAnim,0);
+	glutTimerFunc(33, sceneAnim, 0);
 
 	glutFullScreen();
 	glutMainLoop();
