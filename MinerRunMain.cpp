@@ -813,7 +813,7 @@ void myDisplay(void)
 		if (hasEnded) {
 			drawString(-40, 0.2, camera.eye.z - 60, "Game Over");
 			drawString(-40, -1.2, camera.eye.z - 60, "Score: ");
-			drawScore(-32, -2.4, camera.eye.z - 60);
+			drawScore(-36, -2.4, camera.eye.z - 60);
 		}
 		else {
 			drawString(-40, 0.2, camera.eye.z - 60, "Score: ");
@@ -824,7 +824,7 @@ void myDisplay(void)
 		if (hasEnded) {
 			drawString(-70 + characterX, 27, camera.eye.z - 100, "Game Over");
 			drawString(-70 + characterX, 25, camera.eye.z - 100, "Score: ");
-			drawScore(-62 + characterX, 23, camera.eye.z - 100);
+			drawScore(-66 + characterX, 23, camera.eye.z - 100);
 		}
 		else {
 			drawString(-70 + characterX, 27, camera.eye.z - 100, "Score: ");
