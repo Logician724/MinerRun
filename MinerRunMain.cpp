@@ -458,6 +458,8 @@ void myInit(void)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_NORMALIZE);
 	initInteractables();
+	irrklang::ISound* backgroundMusic = soundEgnine->play3D("media/background.mp3", irrklang::vec3df(0, 0, 0), true, false, true);
+	backgroundMusic->setVolume(0.6f);
 }
 
 //=======================================================================
