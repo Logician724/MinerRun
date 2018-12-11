@@ -1070,7 +1070,7 @@ void handleCollisions()
 void characterJump(int val)
 {
 
-	if (jumpOffset >= 4)
+	if (jumpOffset >= 5)
 	{
 		isGoingUp = false;
 	}
