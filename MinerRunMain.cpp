@@ -1111,7 +1111,11 @@ void characterJump(int val)
 		isGoingUp = true;
 		isJumping = false;
 		jumpOffset = 0;
-		camera.eye.y = 12;
+		if (isThirdPersonPerspective)
+			camera.eye.y = 12;
+		else
+			camera.eye.y = 4;
+		camera.look();
 	}
 }
 
