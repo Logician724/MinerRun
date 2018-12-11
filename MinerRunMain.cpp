@@ -811,25 +811,27 @@ void myDisplay(void)
 
 	if (isThirdPersonPerspective) {
 		if (hasEnded) {
-			drawString(-2, 3, camera.eye.z - 30, "Game Over", Vector3f(1, 0, 0));
-			drawString(-2, 1.5, camera.eye.z - 30, "Score: ", Vector3f(1, 0, 0));
-			drawScore(0, 1.5, camera.eye.z - 30);
-			drawString(-3, 0.2, camera.eye.z - 30, "Press N for a new game", Vector3f(1, 0, 0));
+
+			drawString(-40, 0.2, camera.eye.z - 60, "Game Over", Vector3f(1, 0, 0));
+			drawString(-40.5, -1.2, camera.eye.z - 60, "Score: ", Vector3f(1, 0, 0));
+			drawScore(-36, -2.4, camera.eye.z - 60);
+			drawString(-41.3, -3.6, camera.eye.z - 60, "Press N for a new game", Vector3f(1, 0, 0));
 		}
 		else {
-			drawString(-40, 0.2, camera.eye.z - 60, "Score: ", Vector3f(0, 0, 0));
+			drawString(-40, 0.2, camera.eye.z - 60, "Score: ", Vector3f(1, 0, 0));
 			drawScore(-32, 0.2, camera.eye.z - 60);
 		}
 	}
 	else {
 		if (hasEnded) {
-			drawString(camera.eye.x - 2.5, 5, camera.eye.z - 50, "Game Over", Vector3f(1, 0, 0));
-			drawString(camera.eye.x - 2.5, 3, camera.eye.z - 50, "Score: ", Vector3f(1, 0, 0));
-			drawScore(camera.eye.x + 0.5, 3, camera.eye.z - 50);
-			drawString(camera.eye.x - 4, 0, camera.eye.z - 50, "Press N for a new game", Vector3f(1, 0, 0));
+			drawString(-70 + characterX, 27, camera.eye.z - 100, "Game Over", Vector3f(1, 0, 0));
+			drawString(-70 + characterX, 25, camera.eye.z - 100, "Score: ", Vector3f(1, 0, 0));
+			drawScore(-66 + characterX, 23, camera.eye.z - 100);
+			drawString(-70.3 + characterX, 21, camera.eye.z - 100, "Press N for a new game", Vector3f(1, 0, 0));
+
 		}
 		else {
-			drawString(-70 + characterX, 27, camera.eye.z - 100, "Score: ", Vector3f(0, 0, 0));
+			drawString(-70 + characterX, 27, camera.eye.z - 100, "Score: ", Vector3f(1, 0, 0));
 			drawScore(-62 + characterX, 27, camera.eye.z - 100);
 		}
 	}
@@ -1113,7 +1115,11 @@ void characterJump(int val)
 		isGoingUp = true;
 		isJumping = false;
 		jumpOffset = 0;
-		camera.eye.y = 12;
+		if (isThirdPersonPerspective)
+			camera.eye.y = 12;
+		else
+			camera.eye.y = 4;
+		camera.look();
 	}
 }
 
