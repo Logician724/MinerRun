@@ -32,7 +32,7 @@ bool pause = false;
 bool hasEnded = false;
 
 // game display flags and variables
-bool isDesert = false;
+bool isDesert = true;
 bool isThirdPersonPerspective = true;
 float groundSegmentsZTranslation[10];
 
@@ -302,7 +302,9 @@ void drawSunLight(float x, float y) {
 	{
 		glLoadIdentity();
 
-		GLfloat ambient[] = { 0.98f, 0.84f, 0.65f, 1.0f };
+		float timeOfDay = ((int)lightSourceTheta % 180) / 280.0;
+
+		GLfloat ambient[] = { 0.98f - timeOfDay, 0.84f - timeOfDay, 0.65f - timeOfDay, 1.0f };
 		glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
 
 		// Define Light source 0 diffuse light
@@ -318,9 +320,6 @@ void drawSunLight(float x, float y) {
 	}
 	glPopMatrix();
 
-	// Enable Lighting for this OpenGL Program
-	glEnable(GL_LIGHTING);
-
 }
 void drawMoonLight(float x, float y) {
 	glEnable(GL_LIGHT1);
@@ -329,7 +328,9 @@ void drawMoonLight(float x, float y) {
 	{
 		glLoadIdentity();
 
-		GLfloat ambient[] = { 0.05f, 0.05f, 0.05f, 1.0f };
+		float timeOfDay = ((int)lightSourceTheta % 180) / 190.0;
+
+		GLfloat ambient[] = { 0.05f + timeOfDay/2, 0.05f + timeOfDay/2, 0.05f + timeOfDay/2, 1.0f };
 		glLightfv(GL_LIGHT1, GL_AMBIENT, ambient);
 
 		// Define Light source 0 diffuse light
@@ -340,16 +341,18 @@ void drawMoonLight(float x, float y) {
 		GLfloat specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		glLightfv(GL_LIGHT1, GL_SPECULAR, specular);
 
-		GLfloat light_position[] = { x, y, 270, 1.0f };
+		GLfloat light_position[] = { x, y, 90, 1.0f };
 		glLightfv(GL_LIGHT1, GL_POSITION, light_position);
 	}
 	glPopMatrix();
 
+	
+
+}
+void SunMoonLight() {
 	// Enable Lighting for this OpenGL Program
 	glEnable(GL_LIGHTING);
 
-}
-void testLight() {
 	float sunX = 100 * cos(lightSourceTheta * PI / 180);
 	float sunY = 100 * sin(lightSourceTheta * PI / 180);
 	float moonX = 100 * cos((lightSourceTheta + 180) * PI / 180);
@@ -357,12 +360,16 @@ void testLight() {
 	lightSourceTheta += 1;
 
 	drawSunLight(sunX, sunY);
-	drawMoonLight(moonX, moonY);
+	drawMoonLight(sunX, sunY);
 
-	if(((int) lightSourceTheta) % 360 > 180)
+	if (((int)lightSourceTheta) % 360 > 180) {
+		// Activate Moon
 		glDisable(GL_LIGHT0);
-	else
+	}
+	else {
+		// Activate Sun
 		glDisable(GL_LIGHT1);
+	}
 }
 
 //=======================================================================
@@ -796,21 +803,20 @@ void myDisplay(void)
 {
 	InitCamera();
 
-	//InitLightSource();
-	testLight();
+	SunMoonLight();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 	if (isThirdPersonPerspective) {
 		if (hasEnded) {
-			drawString(0, 2.8, camera.eye.z - 50, "Game Over");
-			drawString(0, 0, camera.eye.z - 50, "Score: ");
-			drawScore(3, 0, camera.eye.z - 50);
+			drawString(-2, 2.8, camera.eye.z - 50, "Game Over");
+			drawString(-2, 0, camera.eye.z - 50, "Score: ");
+			drawScore(1, 0, camera.eye.z - 50);
 		}
 		else {
-			drawString(-67, 2.8, camera.eye.z - 100, "Score: ");
-			drawScore(-59, 2.8, camera.eye.z - 100);
+			drawString(-40, 0.2, camera.eye.z - 60, "Score: ");
+			drawScore(-32, 0.2, camera.eye.z - 60);
 		}
 	}
 	else {
