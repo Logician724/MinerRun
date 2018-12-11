@@ -25,8 +25,6 @@ irrklang::ISoundEngine* soundEgnine;
 int WIDTH = 1280;
 int HEIGHT = 720;
 
-//pause game flag
-bool pause = false;
 
 // game end flag
 bool hasEnded = false;
@@ -918,21 +916,10 @@ void specialKeysEvents(int key, int x, int y)
 void keysEvents(unsigned char key, int x, int y) {
 	switch (key) {
 	case 'z': switchPerspective(); break;   // Switch from 1st person to 3rd person or vice versa.
-	case 'w': camera.moveY(CAMERA_MOVEMENT_SPEED); break;
-	case 's': camera.moveY(-CAMERA_MOVEMENT_SPEED); break;
-	case 'a': camera.moveX(CAMERA_MOVEMENT_SPEED); break;
-	case 'd': camera.moveX(-CAMERA_MOVEMENT_SPEED); break;
-	case 'q': camera.moveZ(CAMERA_MOVEMENT_SPEED); break;
-	case 'e': camera.moveZ(-CAMERA_MOVEMENT_SPEED); break;
-	case 'i': camera.rotateX(CAMERA_ROTATION_SPEED); break;
-	case 'k': camera.rotateX(-CAMERA_ROTATION_SPEED); break;
-	case 'j': camera.rotateY(CAMERA_ROTATION_SPEED); break;
-	case 'l': camera.rotateY(-CAMERA_ROTATION_SPEED); break;
 	case ' ': if (!hasEnded) {
 		soundEgnine->play2D("media/jump.wav"); isJumping = true;  // Make the character jump.
 	}
 			  break;
-	case 'p': pause = !pause; break;
 	case 'n': if (hasEnded) startNewGame(); break;
 	case GLUT_KEY_ESCAPE: exit(EXIT_SUCCESS); break;
 	}
@@ -1138,7 +1125,7 @@ void swingArms()
 
 void sceneAnim(int value)
 {
-	if (!pause && !hasEnded)
+	if (!hasEnded)
 		sceneMotion += 1;
 
 	for (int i = 0; i < 10; i++)
