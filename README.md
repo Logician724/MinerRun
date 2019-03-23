@@ -1,5 +1,5 @@
 # Run, Melos
-A temple run-like game with a different style. Implemented in OpenGL as a project of the Computer Graphics uni course.
+A temple run-like game with a different style. Implemented in OpenGL.
 <table>
   <tr>
     <td>
